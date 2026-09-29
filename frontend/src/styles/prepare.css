@@ -1,0 +1,202 @@
+.prepare-page {
+  width: min(100%, 900px);
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+
+.prepare-page h1:focus {
+  outline: 3px solid currentColor;
+  outline-offset: 6px;
+}
+
+.prepare-intro {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.prepare-field {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.prepare-field label {
+  font-size: 1.05rem;
+}
+
+.prepare-field select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem;
+  border: 2px solid currentColor;
+  border-radius: 0.5rem;
+  background: inherit;
+  color: inherit;
+  font: inherit;
+}
+
+.prepare-progress {
+  margin: 1rem 0 1.5rem;
+  padding: 1rem;
+  border: 2px solid currentColor;
+  border-radius: 0.75rem;
+}
+
+.prepare-progress p {
+  margin: 0.4rem 0;
+}
+
+.prepare-question {
+  margin-top: 1rem;
+}
+
+.prepare-question h2 {
+  line-height: 1.5;
+}
+
+.prepare-options {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.prepare-option {
+  width: 100%;
+  min-height: 56px;
+  padding: 1rem;
+  border: 2px solid currentColor;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.prepare-option.selected {
+  border-width: 4px;
+  font-weight: 700;
+}
+
+.prepare-option:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.prepare-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.prepare-actions button,
+.prepare-help button {
+  min-height: 48px;
+  min-width: 120px;
+  padding: 0.75rem 1rem;
+  border: 2px solid currentColor;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.prepare-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.prepare-primary {
+  font-weight: 800 !important;
+  border-width: 3px !important;
+}
+
+.prepare-page button:focus-visible,
+.prepare-page select:focus-visible {
+  outline: 4px solid currentColor;
+  outline-offset: 4px;
+}
+
+.prepare-feedback {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 2px solid currentColor;
+  border-radius: 0.75rem;
+}
+
+.prepare-feedback h3:first-child {
+  font-size: 1.4rem;
+}
+
+.prepare-result-card {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 2px solid currentColor;
+  border-radius: 0.75rem;
+}
+
+.prepare-result-card h2 {
+  margin-top: 0;
+}
+
+.prepare-help {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 3px solid currentColor;
+  border-radius: 0.75rem;
+}
+
+.prepare-warning,
+.prepare-message {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 3px solid currentColor;
+  border-radius: 0.75rem;
+  font-weight: 700;
+}
+
+.prepare-tip {
+  font-weight: 600;
+}
+
+.shortcut-hint {
+  font-size: 0.9em;
+}
+
+.sr-live {
+  min-height: 1px;
+}
+
+/*
+  Prevent horizontal scrolling when text is
+  magnified or browser zoom is high.
+*/
+.prepare-page,
+.prepare-question,
+.prepare-options,
+.prepare-feedback,
+.prepare-result-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/*
+  Smaller screens and high zoom.
+*/
+@media (max-width: 700px) {
+  .prepare-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .prepare-actions button {
+    width: 100%;
+  }
+}
