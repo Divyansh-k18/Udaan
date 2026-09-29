@@ -1,26 +1,87 @@
 {
-  "appName": "Udaan",
-  "chooseLanguage": "Choose your language",
-  "theme": "Theme",
-  "textSize": "Text size",
-  "saveContinue": "Save and continue",
-  "login": "Login",
-  "email": "Email",
-  "password": "Password",
-  "dashboard": "Dashboard",
-  "exams": "Exams",
-  "prepare": "Prepare",
-  "mockTest": "Mock test",
-  "progress": "Progress",
-  "settings": "Settings",
-  "questionOf": "Question {n} of {total}",
-  "timeLeft": "Time left",
-  "optionSelected": "Option {option} selected",
-  "confirmSubmit": "Are you sure you want to submit?",
-  "yes": "Yes",
-  "no": "No",
-  "listening": "Listening...",
-  "notUnderstood": "Sorry, I did not understand. Please try again.",
-  "help": "Help",
-  "languageChanged": "Language changed to {language}"
+  "app": {
+    "name": "Udaan",
+    "tagline": "Accessible exams for everyone"
+  },
+
+  "common": {
+    "continue": "Continue",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "error": "Something went wrong.",
+    "required": "Required"
+  },
+
+  "language": {
+    "title": "Choose your language",
+    "description": "Select the language you would like to use in Udaan.",
+    "current": "Current language: {{language}}",
+    "english": "English",
+    "hindi": "Hindi",
+    "marathi": "Marathi",
+    "gujarati": "Gujarati",
+    "bengali": "Bengali",
+    "tamil": "Tamil"
+  },
+
+  "setup": {
+    "title": "Accessibility setup",
+    "welcome": "Welcome to Udaan",
+    "start": "Press Enter to start",
+    "instructions": "Choose the settings that make Udaan comfortable for you.",
+    "theme": "Choose theme",
+    "textSize": "Text size",
+    "voiceMode": "Voice mode",
+    "speechRate": "Speech rate",
+    "voiceCommands": "Voice commands",
+    "extraTime": "Extra exam time",
+    "saveContinue": "Save and continue"
+  },
+
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "highContrast": "High contrast"
+  },
+
+  "voice": {
+    "udaan": "Udaan speaks",
+    "screenReader": "Use screen reader",
+    "silent": "Silent",
+    "commandsOn": "Voice commands on",
+    "commandsOff": "Voice commands off"
+  },
+
+  "login": {
+    "title": "Login to Udaan",
+    "email": "Email address",
+    "password": "Password",
+    "loginButton": "Login",
+    "forgotPassword": "Forgot password?"
+  },
+
+  "exam": {
+    "question": "Question {{current}} of {{total}}",
+    "timeRemaining": "Time remaining: {{time}}",
+    "submit": "Submit exam",
+    "nextQuestion": "Next question",
+    "previousQuestion": "Previous question",
+    "markReview": "Mark for review",
+    "clearAnswer": "Clear answer"
+  },
+
+  "accessibility": {
+    "skipToContent": "Skip to main content",
+    "increaseText": "Increase text size",
+    "decreaseText": "Decrease text size"
+  },
+
+  "_humanReview": []
 }

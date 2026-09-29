@@ -1,0 +1,92 @@
+{
+  "app": {
+    "name": "Udaan",
+    "tagline": "அனைவருக்கும் அணுகக்கூடிய தேர்வுகள்"
+  },
+
+  "common": {
+    "continue": "தொடரவும்",
+    "back": "பின்செல்",
+    "save": "சேமிக்கவும்",
+    "cancel": "ரத்து செய்",
+    "close": "மூடு",
+    "next": "அடுத்து",
+    "previous": "முந்தைய",
+    "yes": "ஆம்",
+    "no": "இல்லை",
+    "loading": "ஏற்றப்படுகிறது...",
+    "error": "ஏதோ தவறு ஏற்பட்டது.",
+    "required": "தேவை"
+  },
+
+  "language": {
+    "title": "உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்",
+    "description": "Udaan-ல் பயன்படுத்த விரும்பும் மொழியைத் தேர்ந்தெடுக்கவும்.",
+    "current": "தற்போதைய மொழி: {{language}}",
+    "english": "ஆங்கிலம்",
+    "hindi": "இந்தி",
+    "marathi": "மராத்தி",
+    "gujarati": "குஜராத்தி",
+    "bengali": "வங்காளம்",
+    "tamil": "தமிழ்"
+  },
+
+  "setup": {
+    "title": "அணுகல்தன்மை அமைப்பு",
+    "welcome": "Udaan-க்கு வரவேற்கிறோம்",
+    "start": "தொடங்க Enter அழுத்தவும்",
+    "instructions": "Udaan உங்களுக்கு வசதியாக இருக்க தேவையான அமைப்புகளைத் தேர்ந்தெடுக்கவும்.",
+    "theme": "தீம் தேர்ந்தெடுக்கவும்",
+    "textSize": "உரை அளவு",
+    "voiceMode": "குரல் முறை",
+    "speechRate": "பேச்சு வேகம்",
+    "voiceCommands": "குரல் கட்டளைகள்",
+    "extraTime": "கூடுதல் தேர்வு நேரம்",
+    "saveContinue": "சேமித்து தொடரவும்"
+  },
+
+  "theme": {
+    "light": "ஒளி",
+    "dark": "இருள்",
+    "highContrast": "உயர் மாறுபாடு"
+  },
+
+  "voice": {
+    "udaan": "Udaan பேசும்",
+    "screenReader": "திரை வாசிப்பானைப் பயன்படுத்தவும்",
+    "silent": "அமைதி",
+    "commandsOn": "குரல் கட்டளைகள் இயக்கப்பட்டுள்ளன",
+    "commandsOff": "குரல் கட்டளைகள் முடக்கப்பட்டுள்ளன"
+  },
+
+  "login": {
+    "title": "Udaan-ல் உள்நுழையவும்",
+    "email": "மின்னஞ்சல் முகவரி",
+    "password": "கடவுச்சொல்",
+    "loginButton": "உள்நுழை",
+    "forgotPassword": "கடவுச்சொல்லை மறந்துவிட்டீர்களா?"
+  },
+
+  "exam": {
+    "question": "கேள்வி {{current}} / {{total}}",
+    "timeRemaining": "மீதமுள்ள நேரம்: {{time}}",
+    "submit": "தேர்வை சமர்ப்பிக்கவும்",
+    "nextQuestion": "அடுத்த கேள்வி",
+    "previousQuestion": "முந்தைய கேள்வி",
+    "markReview": "மறுபரிசீலனைக்காக குறிக்கவும்",
+    "clearAnswer": "பதிலை அழிக்கவும்"
+  },
+
+  "accessibility": {
+    "skipToContent": "முக்கிய உள்ளடக்கத்திற்கு செல்லவும்",
+    "increaseText": "உரை அளவை அதிகரிக்கவும்",
+    "decreaseText": "உரை அளவை குறைக்கவும்"
+  },
+
+  "_humanReview": [
+    "app.tagline",
+    "setup.instructions",
+    "voice.udaan",
+    "exam.markReview"
+  ]
+}

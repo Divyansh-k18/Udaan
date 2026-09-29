@@ -1,0 +1,92 @@
+{
+  "app": {
+    "name": "Udaan",
+    "tagline": "সবার জন্য সহজলভ্য পরীক্ষা"
+  },
+
+  "common": {
+    "continue": "চালিয়ে যান",
+    "back": "পিছনে",
+    "save": "সংরক্ষণ করুন",
+    "cancel": "বাতিল করুন",
+    "close": "বন্ধ করুন",
+    "next": "পরবর্তী",
+    "previous": "পূর্ববর্তী",
+    "yes": "হ্যাঁ",
+    "no": "না",
+    "loading": "লোড হচ্ছে...",
+    "error": "কিছু ভুল হয়েছে।",
+    "required": "আবশ্যক"
+  },
+
+  "language": {
+    "title": "আপনার ভাষা নির্বাচন করুন",
+    "description": "Udaan-এ ব্যবহার করার জন্য আপনার পছন্দের ভাষা নির্বাচন করুন।",
+    "current": "বর্তমান ভাষা: {{language}}",
+    "english": "ইংরেজি",
+    "hindi": "হিন্দি",
+    "marathi": "মারাঠি",
+    "gujarati": "গুজরাটি",
+    "bengali": "বাংলা",
+    "tamil": "তামিল"
+  },
+
+  "setup": {
+    "title": "অ্যাক্সেসিবিলিটি সেটআপ",
+    "welcome": "Udaan-এ স্বাগতম",
+    "start": "শুরু করতে Enter চাপুন",
+    "instructions": "Udaan ব্যবহারকে আপনার জন্য আরামদায়ক করে এমন সেটিংস নির্বাচন করুন।",
+    "theme": "থিম নির্বাচন করুন",
+    "textSize": "লেখার আকার",
+    "voiceMode": "ভয়েস মোড",
+    "speechRate": "কথার গতি",
+    "voiceCommands": "ভয়েস কমান্ড",
+    "extraTime": "অতিরিক্ত পরীক্ষার সময়",
+    "saveContinue": "সংরক্ষণ করুন এবং চালিয়ে যান"
+  },
+
+  "theme": {
+    "light": "লাইট",
+    "dark": "ডার্ক",
+    "highContrast": "উচ্চ কনট্রাস্ট"
+  },
+
+  "voice": {
+    "udaan": "Udaan বলবে",
+    "screenReader": "স্ক্রিন রিডার ব্যবহার করুন",
+    "silent": "নীরব",
+    "commandsOn": "ভয়েস কমান্ড চালু",
+    "commandsOff": "ভয়েস কমান্ড বন্ধ"
+  },
+
+  "login": {
+    "title": "Udaan-এ লগইন করুন",
+    "email": "ইমেল ঠিকানা",
+    "password": "পাসওয়ার্ড",
+    "loginButton": "লগইন",
+    "forgotPassword": "পাসওয়ার্ড ভুলে গেছেন?"
+  },
+
+  "exam": {
+    "question": "প্রশ্ন {{current}} / {{total}}",
+    "timeRemaining": "অবশিষ্ট সময়: {{time}}",
+    "submit": "পরীক্ষা জমা দিন",
+    "nextQuestion": "পরবর্তী প্রশ্ন",
+    "previousQuestion": "পূর্ববর্তী প্রশ্ন",
+    "markReview": "পর্যালোচনার জন্য চিহ্নিত করুন",
+    "clearAnswer": "উত্তর মুছুন"
+  },
+
+  "accessibility": {
+    "skipToContent": "মূল বিষয়বস্তুতে যান",
+    "increaseText": "লেখার আকার বাড়ান",
+    "decreaseText": "লেখার আকার কমান"
+  },
+
+  "_humanReview": [
+    "app.tagline",
+    "setup.instructions",
+    "voice.udaan",
+    "exam.markReview"
+  ]
+}

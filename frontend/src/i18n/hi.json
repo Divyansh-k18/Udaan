@@ -1,26 +1,90 @@
 {
-  "appName": "Udaan",
-  "chooseLanguage": "अपनी भाषा चुनें",
-  "theme": "थीम",
-  "textSize": "अक्षरों का आकार",
-  "saveContinue": "सहेजें और आगे बढ़ें",
-  "login": "लॉग इन",
-  "email": "ईमेल",
-  "password": "पासवर्ड",
-  "dashboard": "डैशबोर्ड",
-  "exams": "परीक्षाएँ",
-  "prepare": "तैयारी",
-  "mockTest": "मॉक टेस्ट",
-  "progress": "प्रगति",
-  "settings": "सेटिंग्स",
-  "questionOf": "{total} में से प्रश्न {n}",
-  "timeLeft": "बचा हुआ समय",
-  "optionSelected": "विकल्प {option} चुना गया",
-  "confirmSubmit": "क्या आप सच में जमा करना चाहते हैं?",
-  "yes": "हाँ",
-  "no": "नहीं",
-  "listening": "सुन रहा हूँ...",
-  "notUnderstood": "माफ़ कीजिए, मैं समझ नहीं पाया। कृपया फिर से कहें।",
-  "help": "मदद",
-  "languageChanged": "भाषा बदलकर {language} हो गई"
+  "app": {
+    "name": "Udaan",
+    "tagline": "सभी के लिए सुलभ परीक्षाएँ"
+  },
+
+  "common": {
+    "continue": "जारी रखें",
+    "back": "वापस",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "close": "बंद करें",
+    "next": "अगला",
+    "previous": "पिछला",
+    "yes": "हाँ",
+    "no": "नहीं",
+    "loading": "लोड हो रहा है...",
+    "error": "कुछ गलत हो गया।",
+    "required": "आवश्यक"
+  },
+
+  "language": {
+    "title": "अपनी भाषा चुनें",
+    "description": "Udaan में उपयोग करने के लिए अपनी पसंदीदा भाषा चुनें।",
+    "current": "वर्तमान भाषा: {{language}}",
+    "english": "अंग्रेज़ी",
+    "hindi": "हिन्दी",
+    "marathi": "मराठी",
+    "gujarati": "गुजराती",
+    "bengali": "बंगाली",
+    "tamil": "तमिल"
+  },
+
+  "setup": {
+    "title": "सुलभता सेटअप",
+    "welcome": "Udaan में आपका स्वागत है",
+    "start": "शुरू करने के लिए Enter दबाएँ",
+    "instructions": "वे सेटिंग्स चुनें जो Udaan को आपके लिए उपयोग करने में सुविधाजनक बनाती हैं।",
+    "theme": "थीम चुनें",
+    "textSize": "टेक्स्ट का आकार",
+    "voiceMode": "आवाज़ मोड",
+    "speechRate": "बोलने की गति",
+    "voiceCommands": "वॉइस कमांड",
+    "extraTime": "अतिरिक्त परीक्षा समय",
+    "saveContinue": "सहेजें और जारी रखें"
+  },
+
+  "theme": {
+    "light": "हल्का",
+    "dark": "गहरा",
+    "highContrast": "उच्च कंट्रास्ट"
+  },
+
+  "voice": {
+    "udaan": "Udaan बोले",
+    "screenReader": "स्क्रीन रीडर का उपयोग करें",
+    "silent": "मौन",
+    "commandsOn": "वॉइस कमांड चालू",
+    "commandsOff": "वॉइस कमांड बंद"
+  },
+
+  "login": {
+    "title": "Udaan में लॉगिन करें",
+    "email": "ईमेल पता",
+    "password": "पासवर्ड",
+    "loginButton": "लॉगिन",
+    "forgotPassword": "पासवर्ड भूल गए?"
+  },
+
+  "exam": {
+    "question": "प्रश्न {{current}} / {{total}}",
+    "timeRemaining": "शेष समय: {{time}}",
+    "submit": "परीक्षा जमा करें",
+    "nextQuestion": "अगला प्रश्न",
+    "previousQuestion": "पिछला प्रश्न",
+    "markReview": "समीक्षा के लिए चिह्नित करें",
+    "clearAnswer": "उत्तर हटाएँ"
+  },
+
+  "accessibility": {
+    "skipToContent": "मुख्य सामग्री पर जाएँ",
+    "increaseText": "टेक्स्ट का आकार बढ़ाएँ",
+    "decreaseText": "टेक्स्ट का आकार घटाएँ"
+  },
+
+  "_humanReview": [
+    "setup.instructions",
+    "voice.udaan"
+  ]
 }

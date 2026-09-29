@@ -1,0 +1,92 @@
+{
+  "app": {
+    "name": "Udaan",
+    "tagline": "દરેક માટે સુલભ પરીક્ષાઓ"
+  },
+
+  "common": {
+    "continue": "આગળ વધો",
+    "back": "પાછળ",
+    "save": "સાચવો",
+    "cancel": "રદ કરો",
+    "close": "બંધ કરો",
+    "next": "આગળ",
+    "previous": "પાછળ",
+    "yes": "હા",
+    "no": "ના",
+    "loading": "લોડ થઈ રહ્યું છે...",
+    "error": "કંઈક ખોટું થયું.",
+    "required": "આવશ્યક"
+  },
+
+  "language": {
+    "title": "તમારી ભાષા પસંદ કરો",
+    "description": "Udaan માં ઉપયોગ કરવા માટે તમારી પસંદગીની ભાષા પસંદ કરો.",
+    "current": "વર્તમાન ભાષા: {{language}}",
+    "english": "અંગ્રેજી",
+    "hindi": "હિન્દી",
+    "marathi": "મરાઠી",
+    "gujarati": "ગુજરાતી",
+    "bengali": "બંગાળી",
+    "tamil": "તમિલ"
+  },
+
+  "setup": {
+    "title": "ઍક્સેસિબિલિટી સેટઅપ",
+    "welcome": "Udaan માં આપનું સ્વાગત છે",
+    "start": "શરૂ કરવા માટે Enter દબાવો",
+    "instructions": "Udaan તમારા માટે અનુકૂળ બને તેવી સેટિંગ્સ પસંદ કરો.",
+    "theme": "થીમ પસંદ કરો",
+    "textSize": "ટેક્સ્ટનું કદ",
+    "voiceMode": "વૉઇસ મોડ",
+    "speechRate": "બોલવાની ઝડપ",
+    "voiceCommands": "વૉઇસ કમાન્ડ",
+    "extraTime": "વધારાનો પરીક્ષા સમય",
+    "saveContinue": "સાચવો અને આગળ વધો"
+  },
+
+  "theme": {
+    "light": "લાઇટ",
+    "dark": "ડાર્ક",
+    "highContrast": "ઉચ્ચ કોન્ટ્રાસ્ટ"
+  },
+
+  "voice": {
+    "udaan": "Udaan બોલે",
+    "screenReader": "સ્ક્રીન રીડરનો ઉપયોગ કરો",
+    "silent": "મૌન",
+    "commandsOn": "વૉઇસ કમાન્ડ ચાલુ",
+    "commandsOff": "વૉઇસ કમાન્ડ બંધ"
+  },
+
+  "login": {
+    "title": "Udaan માં લૉગિન કરો",
+    "email": "ઈમેલ સરનામું",
+    "password": "પાસવર્ડ",
+    "loginButton": "લૉગિન",
+    "forgotPassword": "પાસવર્ડ ભૂલી ગયા?"
+  },
+
+  "exam": {
+    "question": "પ્રશ્ન {{current}} માંથી {{total}}",
+    "timeRemaining": "બાકી સમય: {{time}}",
+    "submit": "પરીક્ષા સબમિટ કરો",
+    "nextQuestion": "આગળનો પ્રશ્ન",
+    "previousQuestion": "પાછલો પ્રશ્ન",
+    "markReview": "સમીક્ષા માટે ચિહ્નિત કરો",
+    "clearAnswer": "જવાબ સાફ કરો"
+  },
+
+  "accessibility": {
+    "skipToContent": "મુખ્ય સામગ્રી પર જાઓ",
+    "increaseText": "ટેક્સ્ટનું કદ વધારો",
+    "decreaseText": "ટેક્સ્ટનું કદ ઘટાડો"
+  },
+
+  "_humanReview": [
+    "app.tagline",
+    "setup.instructions",
+    "voice.udaan",
+    "exam.markReview"
+  ]
+}

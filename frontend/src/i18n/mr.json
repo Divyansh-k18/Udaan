@@ -1,0 +1,92 @@
+{
+  "app": {
+    "name": "Udaan",
+    "tagline": "सर्वांसाठी सुलभ परीक्षा"
+  },
+
+  "common": {
+    "continue": "पुढे जा",
+    "back": "मागे",
+    "save": "जतन करा",
+    "cancel": "रद्द करा",
+    "close": "बंद करा",
+    "next": "पुढील",
+    "previous": "मागील",
+    "yes": "होय",
+    "no": "नाही",
+    "loading": "लोड होत आहे...",
+    "error": "काहीतरी चूक झाली.",
+    "required": "आवश्यक"
+  },
+
+  "language": {
+    "title": "तुमची भाषा निवडा",
+    "description": "Udaan मध्ये वापरण्यासाठी तुमची पसंतीची भाषा निवडा.",
+    "current": "सध्याची भाषा: {{language}}",
+    "english": "इंग्रजी",
+    "hindi": "हिंदी",
+    "marathi": "मराठी",
+    "gujarati": "गुजराती",
+    "bengali": "बंगाली",
+    "tamil": "तमिळ"
+  },
+
+  "setup": {
+    "title": "प्रवेशयोग्यता सेटअप",
+    "welcome": "Udaan मध्ये आपले स्वागत आहे",
+    "start": "सुरू करण्यासाठी Enter दाबा",
+    "instructions": "Udaan वापरणे तुमच्यासाठी सोयीचे होईल अशा सेटिंग्ज निवडा.",
+    "theme": "थीम निवडा",
+    "textSize": "मजकूराचा आकार",
+    "voiceMode": "आवाज मोड",
+    "speechRate": "बोलण्याचा वेग",
+    "voiceCommands": "व्हॉइस कमांड",
+    "extraTime": "अतिरिक्त परीक्षा वेळ",
+    "saveContinue": "जतन करा आणि पुढे जा"
+  },
+
+  "theme": {
+    "light": "फिकट",
+    "dark": "गडद",
+    "highContrast": "उच्च कॉन्ट्रास्ट"
+  },
+
+  "voice": {
+    "udaan": "Udaan बोलेल",
+    "screenReader": "स्क्रीन रीडर वापरा",
+    "silent": "मूक",
+    "commandsOn": "व्हॉइस कमांड सुरू",
+    "commandsOff": "व्हॉइस कमांड बंद"
+  },
+
+  "login": {
+    "title": "Udaan मध्ये लॉगिन करा",
+    "email": "ईमेल पत्ता",
+    "password": "पासवर्ड",
+    "loginButton": "लॉगिन",
+    "forgotPassword": "पासवर्ड विसरलात?"
+  },
+
+  "exam": {
+    "question": "प्रश्न {{current}} पैकी {{total}}",
+    "timeRemaining": "उरलेला वेळ: {{time}}",
+    "submit": "परीक्षा सबमिट करा",
+    "nextQuestion": "पुढील प्रश्न",
+    "previousQuestion": "मागील प्रश्न",
+    "markReview": "पुनरावलोकनासाठी चिन्हांकित करा",
+    "clearAnswer": "उत्तर साफ करा"
+  },
+
+  "accessibility": {
+    "skipToContent": "मुख्य मजकुराकडे जा",
+    "increaseText": "मजकूराचा आकार वाढवा",
+    "decreaseText": "मजकूराचा आकार कमी करा"
+  },
+
+  "_humanReview": [
+    "app.tagline",
+    "setup.instructions",
+    "voice.udaan",
+    "exam.markReview"
+  ]
+}
