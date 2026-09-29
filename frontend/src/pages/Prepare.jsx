@@ -18,7 +18,7 @@ import { getQuestions } from "../data/questionBank";
 import {
   speak,
   stopSpeaking,
-  beep,
+  playBeep,
 } from "../services/speech";
 
 import { listenOnce } from "../services/listen";
@@ -830,7 +830,7 @@ function Prepare() {
     */
     if (voiceMode !== "silent") {
       try {
-        beep(
+        playBeep(
           correct
             ? "correct"
             : "wrong"
@@ -1062,7 +1062,7 @@ function Prepare() {
 
       try {
         if (voiceMode !== "silent") {
-          beep("listen");
+          playBeep("listen");
         }
 
         setLiveMessage(
@@ -1106,7 +1106,7 @@ function Prepare() {
           if (
             voiceMode !== "silent"
           ) {
-            beep("error");
+            playBeep("error");
           }
 
           setLiveMessage(
@@ -1125,7 +1125,7 @@ function Prepare() {
         }
 
         if (voiceMode !== "silent") {
-          beep("ok");
+          playBeep("ok");
         }
 
         setLiveMessage(
@@ -1143,7 +1143,7 @@ function Prepare() {
 
         if (voiceMode !== "silent") {
           try {
-            beep("error");
+            playBeep("error");
           } catch {
             // Ignore audio failure.
           }
