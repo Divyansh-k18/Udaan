@@ -6,7 +6,7 @@ const TEXT = {
     help: "Help", title: "Udaan Help",
     description: "Keyboard shortcuts and voice commands available in Udaan.",
     keyboard: "Keyboard shortcuts", shortcut: "Shortcut", action: "Action",
-    voice: "Voice commands", englishCommands: "English command words work even when another Udaan language is selected.",
+    voice: "Voice commands", englishCommands: "English command words work even when another Udaan language is selected. Press Listen before each command. For display settings, say the setting first, for example Theme, then say a value such as Dark.",
     close: "Close", closeHelp: "Close help", footer: "Press Escape at any time to close this Help dialog.",
     actions: ["Next question", "Previous question", "Repeat question", "Time left", "Mark question", "Open help", "Start voice listening", "Change language", "Submit", "Go to question", "Section status", "Bookmark", "Explain again", "Select option A", "Select option B", "Select option C", "Select option D", "Stop speech or close dialog"],
   },
@@ -60,9 +60,12 @@ const SHORTCUT_KEYS = [
 
 const VOICE_COMMANDS = [
   "Next", "Previous", "Repeat", "Read options", "Option A", "Option B",
-  "Option C", "Option D", "Clear", "Mark", "Time left", "Go to question 5",
-  "Section status", "Submit", "Yes", "No", "Help", "Stop", "Start exam",
-  "Practice", "Progress", "Settings", "Bookmark", "Explain again",
+  "Option C", "Option D", "Option E", "Option F", "Clear", "Mark",
+  "Time left", "Go to question 5", "Section status", "Submit", "Yes", "No",
+  "Help", "Stop", "Start exam", "Practice", "Progress", "Settings",
+  "Bookmark", "Explain again",
+  "Theme", "Dark", "Light", "High contrast", "Text size", "150",
+  "Line spacing", "Reading mode", "Silent", "Screen reader",
 ];
 
 function isTypingElement(element) {

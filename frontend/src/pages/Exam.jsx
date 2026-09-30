@@ -17,6 +17,7 @@ import {
 } from "react-router-dom";
 
 import { buildPaper } from "../data/questionBank";
+import { handleSettingsCommand } from "../voice/settingsFlow.js";
 
 import { useLanguage } from "../context/LanguageContext";
 import { useAccessibility } from "../context/AccessibilityContext";
@@ -924,6 +925,8 @@ function Exam() {
           matched.id;
 
     if (showSubmitConfirm && !["YES", "NO", "STOP", "HELP"].includes(commandId)) { announce("Say Yes to submit or No to return to the test."); return true; }
+    // Display settings, e.g. "theme" then "dark", work during a test.
+    if (handleSettingsCommand(matched, language)) return true;
     if (showGoTo && !["GO_TO", "NO", "STOP", "HELP"].includes(commandId)) return false;
     switch (commandId) {
       case "LOCK": handlers.lockAnswer(); return true;

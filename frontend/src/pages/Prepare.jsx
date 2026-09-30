@@ -18,6 +18,8 @@ import { useAccessibility } from "../context/AccessibilityContext";
 
 import { getQuestions } from "../data/questionBank";
 
+import { handleSettingsCommand } from "../voice/settingsFlow.js";
+
 import {
   speak,
   stopSpeaking,
@@ -1083,6 +1085,10 @@ function Prepare() {
     const commandValue =
       commandData?.option ??
       commandData?.value;
+
+    // Display settings, e.g. "theme" then "dark",
+    // work while practising.
+    handleSettingsCommand(commandData, language);
 
     switch (commandName) {
       case "LOCK": handlers.lockAnswer(); break;

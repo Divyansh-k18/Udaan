@@ -8,9 +8,25 @@
  * We also include common Hindi, Marathi, Gujarati,
  * Bengali and Tamil equivalents.
  *
+ * Display settings are handled by `settingsCommands.js`, which
+ * turns "theme" + "dark" into a preference change.
+ *
  * IMPORTANT:
  * Voice commands must always have keyboard/button alternatives.
  */
+
+import {
+  SETTING_COMMANDS,
+  matchSettingRequest,
+  matchSettingValue,
+} from "./settingsCommands.js";
+
+import {
+  getBaseLanguage,
+  normalizeCommandText,
+} from "./normalize.js";
+
+export { normalizeCommandText };
 
 export const COMMANDS = Object.freeze({
   LOCK: "LOCK",
@@ -37,80 +53,9 @@ export const COMMANDS = Object.freeze({
   SETTINGS: "SETTINGS",
   BOOKMARK: "BOOKMARK",
   EXPLAIN_AGAIN: "EXPLAIN_AGAIN",
+  SET_SETTING: SETTING_COMMANDS.SET_SETTING,
+  SET_SETTING_VALUE: SETTING_COMMANDS.SET_SETTING_VALUE,
 });
-
-
-/* ---------------------------------------------------
-   DIGIT NORMALIZATION
---------------------------------------------------- */
-
-const DIGIT_MAP = {
-  // Devanagari
-  "०": "0",
-  "१": "1",
-  "२": "2",
-  "३": "3",
-  "४": "4",
-  "५": "5",
-  "६": "6",
-  "७": "7",
-  "८": "8",
-  "९": "9",
-
-  // Bengali
-  "০": "0",
-  "১": "1",
-  "২": "2",
-  "৩": "3",
-  "৪": "4",
-  "৫": "5",
-  "৬": "6",
-  "৭": "7",
-  "৮": "8",
-  "৯": "9",
-
-  // Gujarati
-  "૦": "0",
-  "૧": "1",
-  "૨": "2",
-  "૩": "3",
-  "૪": "4",
-  "૫": "5",
-  "૬": "6",
-  "૭": "7",
-  "૮": "8",
-  "૯": "9",
-
-  // Tamil
-  "௦": "0",
-  "௧": "1",
-  "௨": "2",
-  "௩": "3",
-  "௪": "4",
-  "௫": "5",
-  "௬": "6",
-  "௭": "7",
-  "௮": "8",
-  "௯": "9",
-};
-
-
-/* ---------------------------------------------------
-   TEXT NORMALIZATION
---------------------------------------------------- */
-
-export function normalizeCommandText(value = "") {
-  let text = String(value).normalize("NFKC").toLowerCase();
-
-  text = Array.from(text)
-    .map((character) => DIGIT_MAP[character] ?? character)
-    .join("");
-
-  return text
-    .replace(/[.,!?;:"'`(){}[\]]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 
 /* ---------------------------------------------------
@@ -740,6 +685,26 @@ const OPTION_VALUES = {
     "4",
     "four",
   ],
+
+  E: [
+    "e",
+    "ई",
+    "ઈ",
+    "ই",
+    "ஈ",
+    "5",
+    "five",
+  ],
+
+  F: [
+    "f",
+    "एफ",
+    "એફ",
+    "এফ",
+    "எஃப்",
+    "6",
+    "six",
+  ],
 };
 
 
@@ -751,6 +716,13 @@ const ENGLISH_OPTION_PREFIXES = [
   "choose",
   "choose option",
   "answer",
+  "answer is",
+  "choice",
+  "mark option",
+  "option number",
+  "i choose",
+  "i will choose",
+  "it is",
 ];
 
 
@@ -760,6 +732,8 @@ const LOCAL_OPTION_PREFIXES = {
     "विकल्प चुनो",
     "चुनो",
     "उत्तर",
+    "विकल्प नंबर",
+    "मेरा उत्तर",
   ],
 
   mr: [
@@ -767,6 +741,7 @@ const LOCAL_OPTION_PREFIXES = {
     "पर्याय निवडा",
     "निवडा",
     "उत्तर",
+    "पर्याय क्रमांक",
   ],
 
   gu: [
@@ -774,6 +749,7 @@ const LOCAL_OPTION_PREFIXES = {
     "વિકલ્પ પસંદ કરો",
     "પસંદ કરો",
     "જવાબ",
+    "વિકલ્પ નંબર",
   ],
 
   bn: [
@@ -781,6 +757,7 @@ const LOCAL_OPTION_PREFIXES = {
     "বিকল্প বেছে নিন",
     "বেছে নিন",
     "উত্তর",
+    "বিকল্প নম্বর",
   ],
 
   ta: [
@@ -788,6 +765,7 @@ const LOCAL_OPTION_PREFIXES = {
     "விருப்பத்தை தேர்வு செய்",
     "தேர்வு செய்",
     "பதில்",
+    "விருப்ப எண்",
   ],
 };
 
@@ -835,13 +813,6 @@ const LOCAL_GO_TO_PREFIXES = {
 /* ---------------------------------------------------
    HELPERS
 --------------------------------------------------- */
-
-function getBaseLanguage(langCode = "en-IN") {
-  return String(langCode)
-    .toLowerCase()
-    .split("-")[0];
-}
-
 
 function getAliasesForCommand(command, langCode) {
   const language = getBaseLanguage(langCode);
@@ -964,6 +935,29 @@ function matchGoToQuestion(text, langCode) {
  *   questionNumber: 12,
  *   raw: "go to question 12"
  * }
+ *
+ *
+ * matchCommand("theme", "en-IN")
+ *
+ * returns:
+ *
+ * {
+ *   command: "SET_SETTING",
+ *   setting: "theme",
+ *   raw: "theme"
+ * }
+ *
+ *
+ * matchCommand("dark", "en-IN")
+ *
+ * returns:
+ *
+ * {
+ *   command: "SET_SETTING_VALUE",
+ *   setting: "theme",
+ *   value: "dark",
+ *   raw: "dark"
+ * }
  */
 export function matchCommand(
   transcript,
@@ -1002,6 +996,38 @@ export function matchCommand(
     return {
       command: COMMANDS.GO_TO,
       questionNumber,
+      raw: transcript,
+    };
+  }
+
+  // Then check display settings, e.g. "theme" then "dark".
+  // Checked after exam options and navigation so that
+  // "option c" and "go to question 3" keep working.
+  const settingRequest =
+    matchSettingRequest(
+      text,
+      langCode
+    );
+
+  if (settingRequest) {
+    return {
+      command: COMMANDS.SET_SETTING,
+      setting: settingRequest.setting,
+      raw: transcript,
+    };
+  }
+
+  const settingValue =
+    matchSettingValue(
+      text,
+      langCode
+    );
+
+  if (settingValue) {
+    return {
+      command: COMMANDS.SET_SETTING_VALUE,
+      setting: settingValue.setting,
+      value: settingValue.value,
       raw: transcript,
     };
   }

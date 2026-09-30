@@ -3,7 +3,10 @@ import { useEffect, useRef } from "react";
 import { NavLink, Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import HelpDialog from "./HelpDialog";
 import VoiceStatus from "./VoiceStatus";
+import VoiceSettingChooser from "./VoiceSettingChooser";
 import AccessibilityToolbar from "./AccessibilityToolbar";
+import { useLanguage } from "../context/LanguageContext";
+import { handleSettingsCommand } from "../voice/settingsFlow.js";
 import { stopSpeaking } from "../services/speech";
 import "../styles/components.css";
 
@@ -11,6 +14,7 @@ export default function Layout() {
   const mainRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { language } = useLanguage();
   useEffect(() => {
     const heading = mainRef.current?.querySelector('h1');
     document.title = `${heading?.textContent || 'Learning space'} | Udaan`;
@@ -26,7 +30,10 @@ export default function Layout() {
 
   function handleCommand(command) {
     const id = command.command || command.id;
+    // Exam and Prepare handle their own commands, including
+    // display settings, so that nothing is handled twice.
     if (/^\/(exam|prepare)\//.test(location.pathname)) return;
+    if (handleSettingsCommand(command, language)) return;
     const routes = { PROGRESS: '/progress', SETTINGS: '/setup?edit=1', PRACTICE: '/exams', START_EXAM: '/exams' };
     if (routes[id]) navigate(routes[id]);
     if (id === 'STOP') stopSpeaking();
@@ -45,7 +52,7 @@ export default function Layout() {
       <NavLink to="/dashboard"><Icon name="home" />Dashboard</NavLink><NavLink to="/exams"><Icon name="book" />Exams</NavLink>
       <NavLink to="/progress"><Icon name="chart" />Progress</NavLink><NavLink to="/setup?edit=1"><Icon name="settings" />Settings</NavLink>
     </nav><span className="demo-label">Practice demo</span></div>
-    <div className="reading-bar"><AccessibilityToolbar /></div>
+    <div className="reading-bar"><AccessibilityToolbar /><VoiceSettingChooser /></div>
     <main ref={mainRef} id="main-content" className="app-main" tabIndex={-1}><Outlet /></main>
     <footer className="app-footer">Udaan · Learn with confidence. <Link to="/voice-check">Check voice support</Link></footer>
   </div>;
