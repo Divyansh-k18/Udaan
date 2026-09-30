@@ -502,7 +502,7 @@ function Prepare() {
 
     const timeout = window.setTimeout(() => {
       speak(
-        (introductionRead.current ? "" : "Practice started. Use Tab to reach answers and arrow keys to choose. Press Alt R to repeat, Alt N for next, and Escape to stop speech. ") + readingRef.current.buildQuestionSpeech(readingRef.current.currentQuestion),
+        (introductionRead.current ? "" : `${ui("prepare.practiceStarted", "Practice started.")} `) + readingRef.current.buildQuestionSpeech(readingRef.current.currentQuestion),
         language,
         speechRate
       );

@@ -1629,7 +1629,7 @@ function Exam() {
     if (phase !== "exam") { introductionRead.current = false; return; }
     if (!udaanSpeaks || !questionSpeech) return;
     const timer = setTimeout(() => {
-      const introduction = introductionRead.current ? "" : "Mock exam started. " + keyboardGuide + " ";
+      const introduction = introductionRead.current ? "" : "Mock exam started. ";
       introductionRead.current = true;
       speak(introduction + questionSpeech, language, speechRate);
     }, 100);

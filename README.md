@@ -60,3 +60,12 @@ backend/.venv/Scripts/python.exe -m unittest discover -s backend -p test_session
 ```
 
 `UDAAN_DATABASE_URL` can override the default database path for isolated environments. Never commit exam-session databases or virtual environments.
+
+
+## Modern layout and spoken startup guide
+
+The interface uses the full desktop width with a landscape dashboard, four quick-action cards, a compact plane logo, navigation icons and scalable learning illustrations. It reflows in portrait and at 200% text instead of locking device orientation.
+
+With **Udaan speaks** selected, startup announces keyboard instructions. Starting a mock includes the shortcuts before the first question; starting practice gives practice instructions. **Read keyboard guide** or **Alt+K** repeats the guide. **Escape** stops current speech. **Stop & mute** disables automatic narration and saves that preference. Screen-reader and silent modes do not auto-narrate; **Enable voice guide** explicitly turns narration on.
+
+Speech output does not require a microphone. Browser autoplay restrictions may prevent an automatic first announcement: select **Read keyboard guide**, check device volume, and ensure a browser/system voice is installed. Failures now show visible recovery instructions. Written instructions remain available in the keyboard guidance panel. The introductory shortcut guide is currently in English.
