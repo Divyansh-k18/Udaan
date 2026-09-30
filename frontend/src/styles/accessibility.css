@@ -115,3 +115,98 @@ html .question-option, html .mock-section-button { border-color:var(--line); }
 }
 
 dialog.mock-dialog { margin: auto; width: min(38rem, calc(100% - 2rem)); max-height: 85dvh; overflow-y: auto; }
+
+/* Wide-screen composition; always reflows instead of locking device orientation. */
+:root { --art-mint: #cce3d9; --art-sand: #f0d5a4; }
+html[data-theme="dark"] { --art-mint: #2d5144; --art-sand: #655633; }
+html[data-theme="high-contrast"] { --art-mint: #151515; --art-sand: #333; }
+.ui-icon { display:inline-block; flex:0 0 auto; vertical-align:middle; }
+.brand-mark { flex:0 0 auto; color:var(--accent); }
+.brand { display:flex; align-items:center; gap:.6rem; }
+html .app-header { padding:1rem clamp(1rem,3vw,3rem); }
+html .app-main { width:100%; max-width:none; padding:1.3rem clamp(1rem,3vw,3rem) 2rem; }
+.navigation-bar,.reading-bar { max-width:none; width:100%; padding-inline:clamp(1rem,3vw,3rem); }
+.navigation-bar a { gap:.5rem; }
+.navigation-bar .ui-icon { width:20px; height:20px; }
+.page-container,.mock-page,.prepare-page { width:100%; max-width:none; }
+.app-main > .accessible-question { max-width:none; }
+.dashboard-hero { display:grid; grid-template-columns:1fr auto; align-items:center; column-gap:1.5rem; margin-bottom:1rem; }
+.dashboard-hero .eyebrow { grid-column:1 / -1; margin:.15rem 0; }
+.dashboard-hero h1 { font-size:clamp(1.75rem,3vw,2.3rem); margin:.1rem 0; }
+.dashboard-hero > p:not(.eyebrow):not(.backend-status) { grid-column:1; margin:.35rem 0; }
+.dashboard-hero .backend-status { grid-column:2; grid-row:2 / 4; align-self:center; }
+.modern-hero { grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); align-items:center; padding:clamp(1.5rem,3vw,3rem); gap:2rem; margin:1rem 0; border-radius:1.5rem; border:1px solid var(--line); }
+.modern-hero h2 { font-size:clamp(2rem,3.1vw,3.2rem); max-width:23ch; margin:.45rem 0 .9rem; letter-spacing:-.04em; }
+.modern-hero p { margin:.5rem 0 1.3rem; max-width:50ch; }
+.hero-cta { display:inline-flex; align-items:center; gap:1.1rem; }
+.learning-illustration { display:block; width:100%; height:auto; max-height:320px; }
+.hero-art { min-width:0; }
+.feature-pills { display:flex; flex-wrap:wrap; gap:.7rem 1.1rem; margin-top:1.5rem; color:var(--muted); font-size:.875rem; }
+.feature-pills span { display:inline-flex; align-items:center; gap:.45rem; }
+.feature-pills .ui-icon { width:18px; height:18px; }
+.landscape-steps { grid-template-columns:repeat(3,minmax(0,1fr)); margin:1.2rem 0 1.8rem; gap:1rem; }
+.landscape-steps li { display:flex; align-items:center; gap:1rem; border:1px solid var(--line); border-radius:.85rem; padding:1rem 1.2rem; background:var(--surface); }
+.landscape-steps .step-number { font-size:1.5rem; font-weight:750; color:var(--accent); }
+.landscape-steps li div > span { font-size:.9rem; }
+.dashboard-actions { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.dashboard-actions .large-button { border-radius:1rem; padding:1.3rem; min-height:160px; }
+.action-icon { display:grid; place-items:center; width:2.6rem; height:2.6rem; border-radius:.7rem; background:var(--surface-soft); color:var(--accent); margin-bottom:.8rem; }
+.app-header-actions { gap:1rem; }
+.voice-information { max-width:240px; font-size:.85rem; }
+.voice-status { gap:.75rem; }
+.app-footer { font-size:.875rem; padding:.8rem 1.5rem; }
+.landscape-welcome { width:100%; max-width:1400px; display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:3rem; text-align:left; padding:clamp(1.4rem,4vw,4rem); margin-top:2vh; }
+.landscape-welcome p { margin-left:0; }
+.landscape-welcome .start-button { max-width:100%; width:auto; }
+.landscape-setup { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.3rem; width:100%; max-width:1400px; }
+.landscape-setup .setup-header,.landscape-setup .setup-actions { grid-column:1 / -1; margin:0; }
+.landscape-setup .setup-section { margin:0; }
+.app-main .setup-container { width:100%; }
+.app-main .setup-card { max-width:none; }
+.setup-page { padding:clamp(1rem,3vw,3rem); }
+.voice-guide { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.65rem 1.5rem; padding:.65rem clamp(1rem,3vw,3rem); background:var(--accent); color:var(--on-accent); }
+.voice-guide-copy { display:flex; align-items:center; gap:.75rem; min-width:0; }
+.voice-guide-copy p { margin:0; line-height:1.5; font-size:.9rem; }
+.voice-guide-copy strong { display:block; }
+.voice-guide-actions { display:flex; flex-wrap:wrap; gap:.6rem; }
+.voice-guide button { min-height:44px; padding:.45rem .8rem; font-size:.875rem; display:inline-flex; gap:.45rem; align-items:center; }
+.voice-guide button .ui-icon { width:18px; height:18px; }
+.guide-transcript { flex-basis:100%; max-width:90ch; }
+.guide-transcript summary { cursor:pointer; min-height:44px; display:flex; align-items:center; text-decoration:underline; }
+.guide-transcript p { font-size:.95rem; margin:.4rem 0; }
+.voice-guide-error { flex-basis:100%; margin:0; }
+@media (min-width:1600px) { .learning-illustration { max-height:350px; } .modern-hero { padding-block:2.3rem; } }
+@media (max-width:1050px) {
+ .dashboard-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .modern-hero { gap:1rem; padding:1.5rem; }
+ .landscape-steps { gap:.65rem; }
+ .landscape-steps li { padding:.9rem; align-items:flex-start; }
+ .voice-information { max-width:190px; }
+}
+@media (max-width:760px) {
+ .modern-hero,.landscape-welcome,.landscape-setup,.landscape-steps { grid-template-columns:1fr; }
+ .modern-hero h2 { font-size:2rem; }
+ .hero-art,.welcome-art { max-width:450px; width:100%; margin:auto; }
+ .learning-illustration { max-height:220px; }
+ .landscape-welcome { gap:1rem; }
+ .dashboard-hero { display:block; }
+ .dashboard-hero .backend-status { margin-top:.5rem; }
+ .voice-information { max-width:none; }
+ .voice-guide-actions { width:100%; }
+ .landscape-steps li { align-items:center; }
+}
+@media (max-width:480px) {
+ .dashboard-actions { grid-template-columns:1fr; }
+ .feature-pills { display:grid; }
+ .voice-guide-actions button { flex:1 1 auto; }
+ .navigation-bar nav { gap:0; }
+ .navigation-bar a { padding:.5rem; }
+}
+
+/* Keep flexible step content inside its grid cell at large text sizes. */
+.landscape-steps li, .landscape-steps li > div { min-width:0; }
+.landscape-steps li > div { overflow-wrap:anywhere; }
+.skip-link:not(:focus) { transform:translateY(-200%); }
+.voice-guide-status { flex-basis:100%; margin:0; }
+.voice-guide details { min-width:0; max-width:100%; }
+.voice-guide details[open] { flex-basis:100%; }

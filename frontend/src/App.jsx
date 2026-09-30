@@ -4,6 +4,7 @@ import {
   Routes,
 } from "react-router-dom";
 
+import VoiceGuide from "./components/VoiceGuide";
 import StorageNotice from "./components/StorageNotice";
 import Layout from "./components/Layout";
 
@@ -21,7 +22,7 @@ import VoiceCheck from "./pages/VoiceCheck";
 
 function App() {
   return (
-    <><StorageNotice /><Routes>
+    <><a className="skip-link" href="#main-content">Skip to main content</a><VoiceGuide /><StorageNotice /><Routes>
       {/* Start Udaan with accessibility setup */}
       <Route
         path="/"

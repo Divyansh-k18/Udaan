@@ -1,3 +1,4 @@
+import { Icon } from "./Visuals";
 import { useState } from "react";
 import { useAccessibility } from "../context/AccessibilityContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -135,19 +136,19 @@ function VoiceStatus({ onCommand }) {
         }
       >
         <span aria-hidden="true" className="voice-mic-icon">
-          🎤
+          <Icon name="mic" />
         </span>
 
         <span>
-          {listening ? "Listening..." : "Voice"}
+          {listening ? "Listening..." : "Voice command"}
         </span>
       </button>
 
       <div className="voice-information">
-        <p>
+        {heard && <p>
           <strong>Heard:</strong>{" "}
-          <span>{heard || "—"}</span>
-        </p>
+          <span>{heard}</span>
+        </p>}
 
         <p
           className="voice-live-status"

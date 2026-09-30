@@ -1,3 +1,4 @@
+import { BrandMark, LearningIllustration } from "../components/Visuals";
 import { storage } from "../services/storage.js";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -52,9 +53,9 @@ export default function Setup() {
 
   if (!started) {
     return (
-      <main className="setup-page">
-        <section className="start-card">
-          <p className="brand">Udaan</p>
+      <main className="setup-page" id="main-content" tabIndex={-1}>
+        <section className="start-card landscape-welcome"><div className="welcome-copy">
+          <p className="brand"><BrandMark /> Udaan</p>
 
           <h1>{t("setup.welcome")}</h1>
           <p className="welcome-promise">Your ambition. Your pace.<br />Your way to learn.</p>
@@ -72,16 +73,16 @@ export default function Setup() {
           >
             {t("setup.start")}
           </button>
-        </section>
+        </div><div className="welcome-art"><LearningIllustration /></div></section>
       </main>
     );
   }
 
   return (
     <main className="setup-page" id="main-content">
-      <form className="setup-card" onSubmit={handleSubmit}>
+      <form className="setup-card landscape-setup" onSubmit={handleSubmit}>
         <header className="setup-header">
-          <p className="brand">Udaan</p>
+          <p className="brand"><BrandMark /> Udaan</p>
 
           <h1 ref={headingRef} tabIndex={-1}>{t("setup.title")}</h1>
 

@@ -1,3 +1,4 @@
+import { keyboardGuide } from "../components/VoiceGuide";
 import ExamDialog from "../components/ExamDialog";
 import { storage } from "../services/storage.js";
 import { isValidSavedSession, roundMarks, normalisePercent, adjustedSeconds, getFlatQuestions, calculateResult, getSectionRemainingAfterRefresh } from "../services/examLogic.js";
@@ -1622,10 +1623,16 @@ function Exam() {
     currentSection?.name,
   ]);
 
+  const introductionRead = useRef(false);
   const questionSpeech = currentEntry ? `${currentEntry.question.spoken || currentEntry.question.text}. ${currentEntry.question.options.map((option, index) => `Option ${OPTION_LETTERS[index]}: ${option}`).join('. ')}` : "";
   useEffect(() => {
-    if (phase !== "exam" || !udaanSpeaks || !questionSpeech) return;
-    const timer = setTimeout(() => speak(questionSpeech, language, speechRate), 100);
+    if (phase !== "exam") { introductionRead.current = false; return; }
+    if (!udaanSpeaks || !questionSpeech) return;
+    const timer = setTimeout(() => {
+      const introduction = introductionRead.current ? "" : "Mock exam started. " + keyboardGuide + " ";
+      introductionRead.current = true;
+      speak(introduction + questionSpeech, language, speechRate);
+    }, 100);
     return () => { clearTimeout(timer); stopSpeaking(); };
   }, [phase, currentQuestionId, questionSpeech, udaanSpeaks, language, speechRate]);
 

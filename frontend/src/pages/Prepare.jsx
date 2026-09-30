@@ -479,6 +479,7 @@ function Prepare() {
     );
   }
 
+  const introductionRead = useRef(false);
   const readingRef = useRef(null);
   useEffect(() => { readingRef.current = { currentQuestion, buildQuestionSpeech }; });
 
@@ -490,6 +491,7 @@ function Prepare() {
     HTML instead, preventing double speech.
   */
   useEffect(() => {
+    if (phase !== "practice") introductionRead.current = false;
     if (
       phase !== "practice" ||
       !readingRef.current.currentQuestion ||
@@ -500,10 +502,11 @@ function Prepare() {
 
     const timeout = window.setTimeout(() => {
       speak(
-        readingRef.current.buildQuestionSpeech(readingRef.current.currentQuestion),
+        (introductionRead.current ? "" : "Practice started. Use Tab to reach answers and arrow keys to choose. Press Alt R to repeat, Alt N for next, and Escape to stop speech. ") + readingRef.current.buildQuestionSpeech(readingRef.current.currentQuestion),
         language,
         speechRate
       );
+      introductionRead.current = true;
     }, 100);
 
     return () => {

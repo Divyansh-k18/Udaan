@@ -97,7 +97,7 @@ function Login() {
   };
 
   return (
-    <main
+    <main id="main-content" tabIndex={-1}
       className="setup-page"
       aria-labelledby="login-heading"
     >

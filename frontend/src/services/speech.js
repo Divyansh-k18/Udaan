@@ -16,12 +16,19 @@
 // TEXT TO SPEECH
 // --------------------------------------------------
 
+let activeUtterance = null;
+let speechWatchdog = null;
+let speechSequence = 0;
+function reportSpeech(state, error = "") {
+  window.dispatchEvent(new CustomEvent("udaan:speech-status", { detail: { state, error } }));
+}
 export function stopSpeaking() {
-  if (
-    typeof window !== "undefined" &&
-    "speechSynthesis" in window
-  ) {
+  speechSequence += 1;
+  clearTimeout(speechWatchdog);
+  activeUtterance = null;
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
+    reportSpeech("stopped");
   }
 }
 
@@ -77,6 +84,7 @@ export function speak(text, langCode = "en-IN", rate = 1) {
     !("speechSynthesis" in window) ||
     typeof SpeechSynthesisUtterance === "undefined"
   ) {
+    if (typeof window !== "undefined") reportSpeech("error", "unavailable");
     return false;
   }
 
@@ -105,7 +113,37 @@ export function speak(text, langCode = "en-IN", rate = 1) {
     utterance.voice = selectedVoice;
   }
 
-  window.speechSynthesis.speak(utterance);
+  activeUtterance = utterance;
+  const sequence = speechSequence;
+  utterance.onstart = () => {
+    if (sequence !== speechSequence) return;
+    clearTimeout(speechWatchdog);
+    reportSpeech("speaking");
+  };
+  utterance.onend = () => {
+    if (sequence !== speechSequence) return;
+    clearTimeout(speechWatchdog);
+    activeUtterance = null;
+    reportSpeech("finished");
+  };
+  utterance.onerror = (event) => {
+    if (sequence !== speechSequence) return;
+    clearTimeout(speechWatchdog);
+    activeUtterance = null;
+    reportSpeech("error", event.error);
+  };
+  reportSpeech("starting");
+  speechWatchdog = setTimeout(() => {
+    if (sequence === speechSequence) reportSpeech("error", "not-started");
+  }, 4500);
+  try {
+    window.speechSynthesis.resume();
+    window.speechSynthesis.speak(activeUtterance);
+  } catch {
+    clearTimeout(speechWatchdog);
+    reportSpeech("error", "unavailable");
+    return false;
+  }
 
   return true;
 }

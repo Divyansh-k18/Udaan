@@ -1,3 +1,4 @@
+import { Icon, LearningIllustration } from "../components/Visuals";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
@@ -150,14 +151,20 @@ function Dashboard() {
         </p>
       </header>
 
-      <section className="journey-card" aria-labelledby="journey-title">
-        <div><p className="eyebrow">LEARN AT YOUR PACE</p>
-          <h2 id="journey-title">Your next step starts here.</h2>
-          <p>Practise with explanations, build confidence in a timed mock, and see where to improve.</p>
-          <button className="primary-button" onClick={() => navigate("/exams")}>Start practising <span aria-hidden="true">→</span></button>
+      <section className="journey-card modern-hero" aria-labelledby="journey-title">
+        <div className="hero-copy"><p className="eyebrow">A CLEARER PATH FORWARD</p>
+          <h2 id="journey-title">Build confidence.<br />One question at a time.</h2>
+          <p>Prepare independently, practise at your pace, and take your next step with confidence.</p>
+          <button className="primary-button hero-cta" onClick={() => navigate("/exams")}>Start practising <Icon name="arrow" /></button>
+          <div className="feature-pills"><span><Icon name="keyboard" /> Keyboard ready</span><span><Icon name="headphones" /> Guided learning</span><span><Icon name="display" /> Your display, your way</span></div>
         </div>
-        <ol className="journey-steps"><li><strong>01 · Prepare</strong><span>Learn one question at a time</span></li><li><strong>02 · Try a mock</strong><span>Practise with exam-style timing</span></li><li><strong>03 · Reflect</strong><span>Review your score and topics</span></li></ol>
+        <div className="hero-art"><LearningIllustration /></div>
       </section>
+      <ol className="journey-steps landscape-steps">
+        <li><span className="step-number" aria-hidden="true">01</span><div><strong>Prepare</strong><span>Learn with clear explanations</span></div></li>
+        <li><span className="step-number" aria-hidden="true">02</span><div><strong>Try a mock</strong><span>Build confidence with timed practice</span></div></li>
+        <li><span className="step-number" aria-hidden="true">03</span><div><strong>See your progress</strong><span>Know what to work on next</span></div></li>
+      </ol>
       <h2>Explore Udaan</h2>
       <nav
         className="dashboard-actions"
@@ -171,7 +178,7 @@ function Dashboard() {
           className="large-button"
           onClick={() => navigateWithFocus("/exams")}
         >
-          {text("dashboard.exams", "Exams")}<span className="card-detail">Choose a practice or mock test</span>
+          <span className="action-icon"><Icon name="book" /></span>{text("dashboard.exams", "Exams")}<span className="card-detail">Choose a practice or mock test</span>
         </button>
 
         <button
@@ -179,7 +186,7 @@ function Dashboard() {
           className="large-button"
           onClick={() => navigateWithFocus("/progress")}
         >
-          {text("dashboard.progress", "Progress")}<span className="card-detail">Review scores and learning trends</span>
+          <span className="action-icon"><Icon name="chart" /></span>{text("dashboard.progress", "Progress")}<span className="card-detail">Review scores and learning trends</span>
         </button>
 
         <button
@@ -187,7 +194,7 @@ function Dashboard() {
           className="large-button"
           onClick={() => navigateWithFocus("/setup?edit=1")}
         >
-          {text("dashboard.settings", "Settings")}<span className="card-detail">Adjust reading, voice and extra time</span>
+          <span className="action-icon"><Icon name="settings" /></span>{text("dashboard.settings", "Settings")}<span className="card-detail">Adjust reading, voice and extra time</span>
         </button>
 
         <button
@@ -198,7 +205,7 @@ function Dashboard() {
           aria-expanded={showHelp}
           aria-controls="dashboard-help"
         >
-          {text("dashboard.help", "Help")}<span className="card-detail">Find keyboard and voice controls</span>
+          <span className="action-icon"><Icon name="help" /></span>{text("dashboard.help", "Help")}<span className="card-detail">Find keyboard and voice controls</span>
         </button>
       </nav>
 

@@ -1,3 +1,4 @@
+import { Icon, BrandMark } from "./Visuals";
 import { useEffect, useRef } from "react";
 import { NavLink, Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import HelpDialog from "./HelpDialog";
@@ -32,17 +33,17 @@ export default function Layout() {
     if (id === 'HELP') window.dispatchEvent(new Event('udaan:open-help'));
   }
   return <div className="app-layout">
-    <a className="skip-link" href="#main-content">Skip to main content</a>
+    
     <header className="app-header">
       <div className="app-brand-area">
-        <Link to="/dashboard" className="app-brand" aria-label="Udaan dashboard"><span className="brand-symbol" aria-hidden="true">↗</span> Udaan</Link>
+        <Link to="/dashboard" className="app-brand" aria-label="Udaan dashboard"><BrandMark /> Udaan</Link>
         <p className="app-tagline">A little practice. A bigger future.</p>
       </div>
       <div className="app-header-actions"><VoiceStatus onCommand={handleCommand} /><HelpDialog /></div>
     </header>
     <div className="navigation-bar"><nav aria-label="Main navigation">
-      <NavLink to="/dashboard">Dashboard</NavLink><NavLink to="/exams">Exams</NavLink>
-      <NavLink to="/progress">Progress</NavLink><NavLink to="/setup?edit=1">Settings</NavLink>
+      <NavLink to="/dashboard"><Icon name="home" />Dashboard</NavLink><NavLink to="/exams"><Icon name="book" />Exams</NavLink>
+      <NavLink to="/progress"><Icon name="chart" />Progress</NavLink><NavLink to="/setup?edit=1"><Icon name="settings" />Settings</NavLink>
     </nav><span className="demo-label">Practice demo</span></div>
     <div className="reading-bar"><AccessibilityToolbar /></div>
     <main ref={mainRef} id="main-content" className="app-main" tabIndex={-1}><Outlet /></main>
