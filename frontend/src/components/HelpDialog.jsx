@@ -60,7 +60,7 @@ const SHORTCUT_KEYS = [
 
 const VOICE_COMMANDS = [
   "Next", "Previous", "Repeat", "Read options", "Option A", "Option B",
-  "Option C", "Option D", "Option E", "Option F", "Clear", "Mark",
+  "Option C", "Option D", "Clear", "Mark",
   "Time left", "Go to question 5", "Section status", "Submit", "Yes", "No",
   "Help", "Stop", "Start exam", "Practice", "Progress", "Settings",
   "Bookmark", "Explain again",

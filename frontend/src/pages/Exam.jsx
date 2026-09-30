@@ -925,9 +925,11 @@ function Exam() {
           matched.id;
 
     if (showSubmitConfirm && !["YES", "NO", "STOP", "HELP"].includes(commandId)) { announce("Say Yes to submit or No to return to the test."); return true; }
-    // Display settings, e.g. "theme" then "dark", work during a test.
-    if (handleSettingsCommand(matched, language)) return true;
     if (showGoTo && !["GO_TO", "NO", "STOP", "HELP"].includes(commandId)) return false;
+    // Display settings, e.g. "theme" then "dark", work during a test.
+    // Kept below the Go-To gate: that dialog is a native modal, so a
+    // chooser rendered outside it would be inert and unreachable.
+    if (handleSettingsCommand(matched, language)) return true;
     switch (commandId) {
       case "LOCK": handlers.lockAnswer(); return true;
       case "BOOKMARK": handlers.bookmark(); return true;

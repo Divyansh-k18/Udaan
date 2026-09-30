@@ -36,7 +36,7 @@ Behaviour:
 - Only React may speak. The chooser asks the accessibility context to announce, so the selected reading mode still governs narration.
 - Values are matched against the setting being chosen. “150” while a theme is open applies the text size and dismisses the theme question rather than answering it wrongly.
 - “No” and “Stop” cancel. Any other command closes the chooser and is handled normally, so the chooser can never get stuck open.
-- The chooser works in Prepare and mid-mock, from the header microphone and the in-exam panel microphone. The submit confirmation still blocks it, as it blocks every command except Yes, No, Stop and Help.
+- The chooser works in Prepare and mid-mock, from the header microphone and the in-exam panel microphone. The submit confirmation still blocks it, as it blocks every command except Yes, No, Stop and Help. The Go-To dialog also blocks it, for the same reason: that dialog is a native modal, so a chooser rendered outside it would be inert and unreachable.
 - Line spacing requires the setting name (“line spacing 2”), because a bare 1 or 2 must stay an exam option.
 - Matching order is exam option, go to question, setting name, setting value, then fixed commands, so no existing command is shadowed.
 
@@ -82,6 +82,6 @@ Shared integration changes to review with Developer 1: `components/VoiceGuide.js
 
 No changes to AccessibilityContext, Setup, Login, Dashboard, themes.css or speech.js.
 
-The voice setting chooser adds `voice/normalize.js` (extracted from `commands.js` so both matchers can share it and avoid a circular import), `voice/settingsCommands.js`, `voice/settingsFlow.js`, `components/VoiceSettingChooser.jsx` and their tests, plus a `VoiceSettingChooser` mount and command routing line in `components/Layout.jsx`. It touches only new files plus one routing line in Layout, because the chooser must appear on every page; no existing Layout behaviour changed. `commands.js` also gained option E and F and a few extra option phrasings, which remain bounded by the existing `selectOption` range guards in `Exam.jsx` and `Prepare.jsx`.
+The voice setting chooser adds `voice/normalize.js` (extracted from `commands.js` so both matchers can share it and avoid a circular import), `voice/settingsCommands.js`, `voice/settingsFlow.js`, `components/VoiceSettingChooser.jsx` and their tests, plus a `VoiceSettingChooser` mount and command routing line in `components/Layout.jsx`. It touches only new files plus one routing line in Layout, because the chooser must appear on every page; no existing Layout behaviour changed. `commands.js` also gained a few extra option phrasings (“answer is”, “choice”, “i choose”, and similar), which remain bounded by the existing `selectOption` range guards in `Exam.jsx` and `Prepare.jsx`. Option letters stay at A–D because every question in `questionBank.js` and `demoQuestions.js` has exactly four options; `voice/optionCoverage.test.js` fails if the matcher, the question bank and the Help dialog ever disagree about how many options exist.
 
 The original OneDrive checkout's Git metadata was denied by Windows even after a permission grant. Work was therefore performed in an isolated clone in this chat's `work/Udaan` directory, starting from origin/main. Integrate the feature branch through the normal review workflow; do not overwrite Developer 1's current checkout.

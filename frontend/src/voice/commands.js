@@ -685,26 +685,6 @@ const OPTION_VALUES = {
     "4",
     "four",
   ],
-
-  E: [
-    "e",
-    "ई",
-    "ઈ",
-    "ই",
-    "ஈ",
-    "5",
-    "five",
-  ],
-
-  F: [
-    "f",
-    "एफ",
-    "એફ",
-    "এফ",
-    "எஃப்",
-    "6",
-    "six",
-  ],
 };
 
 
@@ -814,7 +794,15 @@ const LOCAL_GO_TO_PREFIXES = {
    HELPERS
 --------------------------------------------------- */
 
-function getAliasesForCommand(command, langCode) {
+/**
+ * Every phrase that should trigger `command`.
+ *
+ * English is always included because English commands work in
+ * every language. Exported so the collision test can prove that
+ * no display-setting phrase has taken a phrase away from a
+ * normal exam command.
+ */
+export function getAliasesForCommand(command, langCode) {
   const language = getBaseLanguage(langCode);
 
   const english =

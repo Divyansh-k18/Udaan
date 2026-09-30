@@ -189,7 +189,7 @@ test("full flow in Hindi", () => {
 test("exam options are not stolen by the settings flow", () => {
   reset();
 
-  for (const [spoken, option] of [["option c", "C"], ["option d", "D"], ["answer is b", "B"], ["5", "E"]]) {
+  for (const [spoken, option] of [["option c", "C"], ["option d", "D"], ["answer is b", "B"]]) {
     const { command, handled } = say(spoken);
     assert.equal(command.command, "SELECT_OPTION", spoken);
     assert.equal(command.option, option, spoken);
