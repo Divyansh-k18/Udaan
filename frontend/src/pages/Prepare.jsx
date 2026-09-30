@@ -1,3 +1,4 @@
+import TopicGuide from "../components/TopicGuide";
 import {
   useEffect,
   useMemo,
@@ -300,7 +301,7 @@ function Prepare() {
     try {
       const result = getQuestions({
         exam: examId,
-        count: 999,
+        count: null,
         shuffle: false,
         language,
       });
@@ -546,7 +547,7 @@ function Prepare() {
         exam: examId,
         subject: selectedSubject,
         topic: topicOverride,
-        count: 999,
+        count: null,
         shuffle: true,
         language,
       });
@@ -1474,6 +1475,8 @@ function Prepare() {
             ))}
           </select>
         </div>
+
+        <TopicGuide subject={selectedSubject} topic={selectedTopic} questions={allQuestions} />
 
         <div className="prepare-actions">
           <button

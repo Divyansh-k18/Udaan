@@ -1,4 +1,5 @@
 import { examCatalog } from "./examCatalog.js";
+import { expandedQuestions } from "./expandedQuestions.js";
 
 /*
   Udaan Question Bank
@@ -34,6 +35,7 @@ function L(en, hi, mr, gu, bn, ta) {
 }
 
 export const questionBank = [
+  ...expandedQuestions,
   // =========================================================
   // REASONING
   // =========================================================
@@ -1063,7 +1065,7 @@ function localizeQuestion(question, language) {
       ? pick(question.altText)
       : null,
 
-    language: selectedLanguage,
+    language: question.text?.[selectedLanguage] ? selectedLanguage : "en-IN",
   };
 }
 
