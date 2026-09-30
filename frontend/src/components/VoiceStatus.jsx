@@ -1,5 +1,6 @@
 import { Icon } from "./Visuals";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useAccessibility } from "../context/AccessibilityContext";
 import { useLanguage } from "../context/LanguageContext";
 import {
@@ -60,6 +61,9 @@ const TEXT = {
 };
 
 function VoiceStatus({ onCommand }) {
+  const { pathname } = useLocation();
+  const controller = useRef(null);
+  useEffect(() => () => { controller.current?.abort(); controller.current = null; }, [pathname]);
   const { preferences } = useAccessibility();
   const { language } = useLanguage();
   const text = TEXT[language] || TEXT["en-IN"];
@@ -82,14 +86,17 @@ function VoiceStatus({ onCommand }) {
       return;
     }
 
-    if (listening) return;
+    if (controller.current) return;
+    const request = new AbortController();
+    controller.current = request;
 
     setListening(true);
     setStatus(text.listening);
     setHeard("");
 
     try {
-      const alternatives = await listenOnce(language);
+      const alternatives = await listenOnce(language, { signal: request.signal });
+      if (request.signal.aborted) return;
       const firstTranscript = alternatives?.[0]?.transcript?.trim() || "";
       setHeard(firstTranscript || text.nothing);
 
@@ -108,8 +115,10 @@ function VoiceStatus({ onCommand }) {
         );
       } else {
         setStatus(text.noMatch);
+        window.dispatchEvent(new CustomEvent("udaan:recognition-status", { detail: { state: "not-understood", heard: firstTranscript, message: "I did not understand that command. Say Help for available commands." } }));
       }
     } catch (error) {
+      if (request.signal.aborted) return;
       const errorCode =
         error?.code || error?.name || error?.message || "recognition-error";
 
@@ -123,6 +132,7 @@ function VoiceStatus({ onCommand }) {
 
       setStatus(messages[errorCode] || text.failed);
     } finally {
+      if (controller.current === request) controller.current = null;
       setListening(false);
     }
   }

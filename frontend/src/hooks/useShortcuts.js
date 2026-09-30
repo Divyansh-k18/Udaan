@@ -67,6 +67,7 @@ export default function useShortcuts(handlers = {}, options = {}) {
 
   const {
     enabled = true,
+    modal = false,
 
     /*
       Escape can stop speech and/or close a dialog.
@@ -84,7 +85,9 @@ export default function useShortcuts(handlers = {}, options = {}) {
 
     function handleKeyDown(event) {
       if (event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey) return;
-      if (document.querySelector('dialog[open], [aria-modal="true"]')) return;
+      const dialogOpen = document.querySelector('dialog[open], [aria-modal="true"]');
+      if (dialogOpen && !modal) return;
+
       /*
         -------------------------------
         ESCAPE
@@ -103,6 +106,7 @@ export default function useShortcuts(handlers = {}, options = {}) {
 
         if (typeof escapeHandler === "function") {
           event.preventDefault();
+          event.stopImmediatePropagation();
           escapeHandler(event);
         }
 
@@ -134,6 +138,7 @@ export default function useShortcuts(handlers = {}, options = {}) {
         Example:
         event.code === "KeyN"
       */
+      if (dialogOpen && event.code !== "KeyV") return;
       const shortcut = SHORTCUTS[event.code];
 
       if (!shortcut) {
@@ -159,17 +164,19 @@ export default function useShortcuts(handlers = {}, options = {}) {
         Udaan actually handles the shortcut.
       */
       event.preventDefault();
+          event.stopImmediatePropagation();
 
       handler(event);
     }
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown, true);
 
     return () => {
       window.removeEventListener(
         "keydown",
-        handleKeyDown
+        handleKeyDown,
+        true
       );
     };
-  }, [enabled, onEscape]);
+  }, [enabled, onEscape, modal]);
 }

@@ -1,14 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import {
   examCatalog,
+  examCategories,
   getExamName,
   getTotalQuestions,
 } from "../data/examCatalog";
 import "../styles/themes.css";
+import "../styles/examVoice.css";
 
 function ExamList() {
+  const [category, setCategory] = useState("");
   const navigate = useNavigate();
 
   const { language, t } = useLanguage();
@@ -74,7 +77,9 @@ function ExamList() {
               "Available exams"
             )}
           >
-            {examCatalog.map((exam) => {
+            <h2>{category || "Choose a category"}</h2>
+            <div className="exam-categories">{examCategories.map(name => <button type="button" key={name} className="secondary-button" aria-pressed={category === name} onClick={() => setCategory(name)}>{name}</button>)}</div>
+            {examCatalog.filter(exam => exam.category === category).map((exam) => {
               const totalQuestions = getTotalQuestions(exam);
 
               return (

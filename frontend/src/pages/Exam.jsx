@@ -1,4 +1,5 @@
-import { keyboardGuide } from "../components/VoiceGuide";
+import ExamVoicePanel from "../components/ExamVoicePanel";
+import useExamVoice from "../hooks/useExamVoice";
 import ExamDialog from "../components/ExamDialog";
 import { storage } from "../services/storage.js";
 import { isValidSavedSession, roundMarks, normalisePercent, adjustedSeconds, getFlatQuestions, calculateResult, getSectionRemainingAfterRefresh } from "../services/examLogic.js";
@@ -11,6 +12,7 @@ import {
 
 import {
   useNavigate,
+  useLocation,
   useParams,
 } from "react-router-dom";
 
@@ -26,8 +28,7 @@ import {
   stopSpeaking,
 } from "../services/speech";
 
-import { listenOnce } from "../services/listen";
-import { matchCommand } from "../voice/commands";
+import { cancelListening, isListening } from "../services/listen";
 
 import Timer, {
   formatSpokenTime,
@@ -96,6 +97,8 @@ function optionValueToIndex(value) {
 
 function Exam() {
   const { examId } = useParams();
+  const location = useLocation();
+  const requestedSection = useRef(location.state?.sectionIndex || 0);
 
   const navigate = useNavigate();
 
@@ -137,6 +140,9 @@ function Exam() {
     setCurrentSectionIndex,
   ] = useState(0);
 
+  const [drafts, setDrafts] = useState({});
+  const [bookmarks, setBookmarks] = useState({});
+  const submittedRef = useRef(false);
   const [answers, setAnswers] =
     useState({});
 
@@ -241,6 +247,9 @@ function Exam() {
           currentEntry.question.id
         ]
       : undefined;
+
+  const currentSelection = currentAnswer ?? drafts[currentQuestionId];
+  const isLocked = Number.isInteger(currentAnswer);
 
   const isCurrentMarked =
     currentEntry
@@ -418,15 +427,31 @@ function Exam() {
       return;
     }
 
-    setAnswers((previous) => ({
-      ...previous,
-      [currentEntry.question.id]:
-        index,
-    }));
+    if (isLocked) { announce("Answer is locked. Clear it before choosing another option."); return; }
+    setDrafts(previous => ({ ...previous, [currentEntry.question.id]: index }));
 
     announce(
       `Option ${OPTION_LETTERS[index]} selected.`
     );
+  }
+
+  function lockAnswer() {
+    if (!requireExamStarted() || !currentEntry) return;
+    if (isLocked) { announce("This answer is already locked."); return; }
+    if (!Number.isInteger(currentSelection)) { announce("Select an option before locking your answer."); return; }
+    setAnswers(previous => ({ ...previous, [currentQuestionId]: currentSelection }));
+    announce(`Option ${OPTION_LETTERS[currentSelection]} locked.`);
+  }
+
+  function toggleBookmark() {
+    if (!requireExamStarted()) return;
+    setBookmarks(previous => ({ ...previous, [currentQuestionId]: !previous[currentQuestionId] }));
+    announce(bookmarks[currentQuestionId] ? "Bookmark removed." : "Question bookmarked.");
+  }
+
+  function announceProgress() {
+    if (!requireExamStarted()) return;
+    announce(`Progress. Question ${currentEntry.globalIndex + 1} of ${flatQuestions.length}. ${flatQuestions.length - unansweredCount} answered. ${unansweredCount} unanswered. ${Object.values(marked).filter(Boolean).length} marked. ${formatSpokenTime(getSecondsStillAvailable())} remaining.`);
   }
 
   function clearAnswer() {
@@ -450,6 +475,7 @@ function Exam() {
       return next;
     });
 
+    setDrafts(previous => { const next = { ...previous }; delete next[currentQuestionId]; return next; });
     announce(
       "Answer cleared."
     );
@@ -492,8 +518,7 @@ function Exam() {
     }
 
     announce(
-      currentEntry.question.spoken ||
-        currentEntry.question.text
+      questionSpeech
     );
   }
 
@@ -542,41 +567,9 @@ function Exam() {
       return;
     }
 
-    const totalAnswered =
-      flatQuestions.filter(
-        ({ question }) =>
-          Number.isInteger(
-            answers[question.id]
-          )
-      ).length;
-
-    const totalMarked =
-      flatQuestions.filter(
-        ({ question }) =>
-          marked[question.id]
-      ).length;
-
-    const sectionAnswered =
-      currentSection?.questions.filter(
-        (question) =>
-          Number.isInteger(
-            answers[question.id]
-          )
-      ).length || 0;
-
-    const sectionMarked =
-      currentSection?.questions.filter(
-        (question) =>
-          marked[question.id]
-      ).length || 0;
-
-    announce(
-      `${totalAnswered} of ${flatQuestions.length} questions answered. ` +
-        `${unansweredCount} unanswered. ` +
-        `${totalMarked} marked for review. ` +
-        `${currentSection?.name || "Current section"} has ` +
-        `${sectionAnswered} answered and ${sectionMarked} marked.`
-    );
+    const questions = currentSection?.questions || flatQuestions.map(entry => entry.question);
+    const answered = questions.filter(question => Number.isInteger(answers[question.id])).length;
+    announce(`${currentSection?.name || "Current section"}. Question ${(currentEntry?.questionIndex ?? 0) + 1} of ${questions.length}. ${answered} answered. ${questions.length - answered} remaining.`);
   }
 
   function jumpToQuestion(
@@ -780,9 +773,9 @@ function Exam() {
   function finalizeExam(
     autoSubmitted = false
   ) {
-    if (!paper) {
-      return;
-    }
+    if (!paper || submittedRef.current || phase !== "exam" || (!autoSubmitted && !showSubmitConfirm)) return;
+    submittedRef.current = true;
+    cancelListening();
 
     const result =
       calculateResult(
@@ -904,11 +897,12 @@ function Exam() {
     announce(
       "Keyboard shortcuts: Alt N next, Alt P previous, Alt R repeat question, " +
         "Alt T time left, Alt M mark, Alt G go to question, Alt C section status, " +
-        "Alt S submit, and Alt 1 through Alt 4 choose an option."
+        "Alt S submit, Alt V listen, Alt B bookmark, Alt E explain again, and Alt 1 through Alt 4 select an option. Say Lock answer or use the Lock Answer button to confirm. Voice commands: start, next, previous, repeat, read options, option A through D, lock answer, clear answer, mark question, bookmark, time left, go to question followed by a number, section status, progress, submit, yes, no, help, stop, explain again."
     );
   }
 
   function closePanels() {
+    cancelListening();
     stopSpeaking();
 
     setShowSubmitConfirm(false);
@@ -929,7 +923,13 @@ function Exam() {
         : matched.command?.id ||
           matched.id;
 
+    if (showSubmitConfirm && !["YES", "NO", "STOP", "HELP"].includes(commandId)) { announce("Say Yes to submit or No to return to the test."); return true; }
+    if (showGoTo && !["GO_TO", "NO", "STOP", "HELP"].includes(commandId)) return false;
     switch (commandId) {
+      case "LOCK": handlers.lockAnswer(); return true;
+      case "BOOKMARK": handlers.bookmark(); return true;
+      case "PROGRESS": handlers.progress(); return true;
+      case "EXPLAIN_AGAIN": handlers.explain(); return true;
       case "NEXT":
         handlers.next();
         return true;
@@ -1001,6 +1001,7 @@ function Exam() {
         return false;
 
       case "NO":
+        if (showGoTo) { closePanels(); return true; }
         if (showSubmitConfirm) {
           handlers.cancelSubmit();
           return true;
@@ -1029,79 +1030,13 @@ function Exam() {
     }
   }
 
-  async function listenForCommand() {
-    if (
-      !voiceCommandsEnabled
-    ) {
-      announce(
-        "Voice commands are turned off in accessibility settings.",
-        false
-      );
-
-      return;
-    }
-
-    try {
-      const alternatives =
-        await listenOnce(language);
-
-      for (const alternative of alternatives) {
-        const transcript =
-          typeof alternative ===
-          "string"
-            ? alternative
-            : alternative.transcript;
-
-        const matched =
-          matchCommand(
-            transcript,
-            language
-          );
-
-        if (
-          handleVoiceCommand(
-            matched
-          )
-        ) {
-          return;
-        }
-      }
-
-      announce(
-        "Voice command not recognised."
-      );
-    } catch (error) {
-      const errorCode =
-        error?.code ||
-        "recognition-error";
-
-      const messages = {
-        "not-supported":
-          "Speech recognition is not supported in this browser.",
-
-        "mic-blocked":
-          "Microphone permission is blocked.",
-
-        "no-speech":
-          "No speech was detected.",
-
-        network:
-          "Speech recognition had a network error.",
-
-        "recognition-error":
-          "Speech recognition could not understand the command.",
-      };
-
-      announce(
-        messages[errorCode] ||
-          messages[
-            "recognition-error"
-          ]
-      );
-    }
-  }
+  const voice = useExamVoice({ language, enabled: voiceCommandsEnabled, onCommand: handleVoiceCommand, scope: `${examId}:${currentQuestionId}:${phase}` });
 
   const handlers = {
+    lockAnswer,
+    bookmark: toggleBookmark,
+    progress: announceProgress,
+    explain: () => announce("Explanations are unavailable during a mock test."),
     next: nextQuestion,
 
     previous:
@@ -1139,7 +1074,7 @@ function Exam() {
     help: showHelp,
 
     listen:
-      listenForCommand,
+      voice.listen,
 
     language: () => {
       if (
@@ -1155,15 +1090,9 @@ function Exam() {
       closePanels,
   };
 
-  const voiceHandlerRef = useRef(handleVoiceCommand);
-  useEffect(() => { voiceHandlerRef.current = handleVoiceCommand; });
-  useEffect(() => {
-    const listener = (event) => voiceHandlerRef.current(event.detail);
-    window.addEventListener("udaan:voice-command", listener);
-    return () => { window.removeEventListener("udaan:voice-command", listener); stopSpeaking(); };
-  }, []);
-
   useShortcuts({
+    bookmark: handlers.bookmark,
+    explain: handlers.explain,
     next:
       handlers.next,
 
@@ -1211,7 +1140,7 @@ function Exam() {
 
     escape:
       handlers.escape,
-  }, { enabled: !showSubmitConfirm && !showGoTo });
+  }, { modal: showSubmitConfirm || showGoTo });
 
   /*
     Load a saved mock test, or create
@@ -1273,9 +1202,9 @@ function Exam() {
         extraTime
       );
 
-      setAnswers(
-        saved.answers || {}
-      );
+      setAnswers(saved.answers || {});
+      setDrafts(saved.drafts || {});
+      setBookmarks(saved.bookmarks || {});
 
       setMarked(
         saved.marked || {}
@@ -1386,14 +1315,14 @@ function Exam() {
     );
 
     setAnswers({});
+    setDrafts({});
+    setBookmarks({});
+    submittedRef.current = false;
     setMarked({});
 
-    setCurrentSectionIndex(0);
-
-    setCurrentQuestionId(
-      flat[0]?.question?.id ||
-        null
-    );
+    const startingSection = newPaper.sectionalTiming ? 0 : Math.max(0, Math.min(requestedSection.current, newPaper.sections.length - 1));
+    setCurrentSectionIndex(startingSection);
+    setCurrentQuestionId(newPaper.sections[startingSection]?.questions[0]?.id || flat[0]?.question?.id || null);
 
     setRemainingSeconds(
       adjustedSeconds(
@@ -1453,7 +1382,8 @@ function Exam() {
         phase === "exam",
 
       answers,
-
+      drafts,
+      bookmarks,
       marked,
 
       currentQuestionId,
@@ -1476,6 +1406,8 @@ function Exam() {
     paper,
     phase,
     answers,
+    drafts,
+    bookmarks,
     marked,
     currentQuestionId,
     currentSectionIndex,
@@ -1623,15 +1555,12 @@ function Exam() {
     currentSection?.name,
   ]);
 
-  const introductionRead = useRef(false);
-  const questionSpeech = currentEntry ? `${currentEntry.question.spoken || currentEntry.question.text}. ${currentEntry.question.options.map((option, index) => `Option ${OPTION_LETTERS[index]}: ${option}`).join('. ')}` : "";
+  const questionSpeech = currentEntry ? `Question ${currentEntry.globalIndex + 1} of ${flatQuestions.length}. ${currentEntry.question.spoken || currentEntry.question.text}. ${currentEntry.question.options.map((option, index) => `Option ${OPTION_LETTERS[index]}: ${option}`).join('. ')}` : "";
   useEffect(() => {
-    if (phase !== "exam") { introductionRead.current = false; return; }
+    if (phase !== "exam") return;
     if (!udaanSpeaks || !questionSpeech) return;
     const timer = setTimeout(() => {
-      const introduction = introductionRead.current ? "" : "Mock exam started. ";
-      introductionRead.current = true;
-      speak(introduction + questionSpeech, language, speechRate);
+      if (!isListening()) speak(questionSpeech, language, speechRate);
     }, 100);
     return () => { clearTimeout(timer); stopSpeaking(); };
   }, [phase, currentQuestionId, questionSpeech, udaanSpeaks, language, speechRate]);
@@ -1641,6 +1570,7 @@ function Exam() {
     const heading = document.querySelector(".question-header h2");
     heading?.setAttribute("tabindex", "-1");
     heading?.focus();
+    setLiveMessage({ id: Date.now(), text: heading ? `${heading.textContent} opened.` : "" });
   }, [currentQuestionId, phase]);
 
   if (phase === "loading") {
@@ -1865,6 +1795,8 @@ function Exam() {
             page will resume the mock.
           </p>
 
+          <ExamVoicePanel voice={voice} feedback={liveMessage.text} />
+          <p>Only locked answers count toward your score. Clear a locked answer to change it.</p>
           <div className="mock-actions">
             <button
               type="button"
@@ -1900,26 +1832,14 @@ function Exam() {
           </div>
         </section>
 
-        <div
-          className="sr-only"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {liveMessage.text}
-        </div>
+
       </section>
     );
   }
 
   return (
     <section className="mock-page">
-      <div
-        className="sr-only"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {liveMessage.text}
-      </div>
+
 
       <header className="mock-exam-header">
         <div>
@@ -1984,6 +1904,7 @@ function Exam() {
         )}
       </div>
 
+      {!showSubmitConfirm && !showGoTo && <ExamVoicePanel voice={voice} feedback={liveMessage.text} />}
       <SectionBar
         sections={paper.sections}
         currentSectionIndex={
@@ -2015,7 +1936,8 @@ function Exam() {
         sectionName={
           currentSection?.name
         }
-        selectedAnswer={Number.isInteger(currentAnswer) ? OPTION_LETTERS[currentAnswer] : ""}
+        selectedAnswer={Number.isInteger(currentSelection) ? OPTION_LETTERS[currentSelection] : ""}
+        disabled={isLocked}
         langCode={language}
         speechRate={speechRate}
         allowSpeech={udaanSpeaks}
@@ -2025,6 +1947,15 @@ function Exam() {
         onSelectAnswer={(id) => handlers.selectOption(OPTION_LETTERS.indexOf(id))}
       />
 
+      <p className="mock-current-status">{isLocked ? "Locked" : "Selected"}: {Number.isInteger(currentSelection) ? `Option ${OPTION_LETTERS[currentSelection]}` : "No option"}</p>
+      <div className="mock-actions">
+        <button className="mock-button mock-primary" onClick={handlers.lockAnswer} disabled={isLocked || !Number.isInteger(currentSelection)}>Lock Answer</button>
+        <button className="mock-button" onClick={handlers.repeat}>Repeat question</button>
+        <button className="mock-button" onClick={handlers.readOptions}>Read options</button>
+        <button className="mock-button" onClick={handlers.bookmark} aria-pressed={!!bookmarks[currentQuestionId]}>Bookmark</button>
+        <button className="mock-button" onClick={handlers.progress}>Progress</button>
+        <button className="mock-button" onClick={handlers.help}>Help</button>
+      </div>
       <div className="mock-navigation">
         <button
           type="button"
@@ -2069,7 +2000,7 @@ function Exam() {
           }
           disabled={
             !Number.isInteger(
-              currentAnswer
+              currentSelection
             )
           }
         >
@@ -2123,6 +2054,14 @@ function Exam() {
         }
       </p>
 
+      <nav aria-label="Question navigator" className="exam-question-navigator">
+        {flatQuestions.map(entry => {
+          const id = entry.question.id;
+          const state = Number.isInteger(answers[id]) ? "answered, locked" : Number.isInteger(drafts[id]) ? "selected, not locked" : "unanswered";
+          const label = `Question ${entry.globalIndex + 1}, ${state}${marked[id] ? ", marked for review" : ""}${bookmarks[id] ? ", bookmarked" : ""}`;
+          return <button key={id} type="button" disabled={paper.sectionalTiming && entry.sectionIndex !== currentSectionIndex} aria-current={id === currentQuestionId ? "step" : undefined} aria-label={label} onClick={() => handlers.goTo(entry.globalIndex + 1)}>{label}</button>;
+        })}
+      </nav>
       {showGoTo && (
         <ExamDialog
           className="mock-dialog"
@@ -2134,6 +2073,7 @@ function Exam() {
             Go to Question
           </h2>
 
+          <ExamVoicePanel voice={voice} feedback={liveMessage.text} />
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -2209,6 +2149,8 @@ function Exam() {
             Submit mock test?
           </h2>
 
+          <ExamVoicePanel voice={voice} />
+          <p>Say Yes to submit or No to keep working. Selected but unlocked answers are unanswered.</p>
           <p id="submit-confirm-description">
             You have{" "}
             <strong>

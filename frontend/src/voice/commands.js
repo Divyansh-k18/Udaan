@@ -13,6 +13,9 @@
  */
 
 export const COMMANDS = Object.freeze({
+  LOCK: "LOCK",
+  SKIP: "SKIP",
+  RETRY_WRONG: "RETRY_WRONG",
   NEXT: "NEXT",
   PREVIOUS: "PREVIOUS",
   REPEAT: "REPEAT",
@@ -117,10 +120,15 @@ export function normalizeCommandText(value = "") {
 --------------------------------------------------- */
 
 const ENGLISH_ALIASES = {
+  LOCK: ["lock", "lock answer", "confirm", "confirm answer"],
+  SKIP: ["skip", "skip question"],
+  RETRY_WRONG: ["retry wrong", "retry wrong questions"],
+  GO_TO: ["go to question"],
   NEXT: [
     "next",
     "next question",
     "go next",
+    "continue",
   ],
 
   PREVIOUS: [
@@ -142,6 +150,7 @@ const ENGLISH_ALIASES = {
     "read the options",
     "options",
     "read answers",
+    "repeat options",
   ],
 
   CLEAR: [
@@ -174,13 +183,14 @@ const ENGLISH_ALIASES = {
   SUBMIT: [
     "submit",
     "submit exam",
+    "submit test",
     "finish exam",
     "finish test",
   ],
 
   YES: [
     "yes",
-    "confirm",
+
   ],
 
   NO: [
@@ -203,6 +213,7 @@ const ENGLISH_ALIASES = {
 
   START_EXAM: [
     "start exam",
+    "start",
     "start test",
     "begin exam",
     "begin test",
@@ -219,6 +230,7 @@ const ENGLISH_ALIASES = {
     "progress",
     "show progress",
     "my progress",
+    "status",
   ],
 
   SETTINGS: [
@@ -996,6 +1008,7 @@ export function matchCommand(
 
   // All normal fixed commands.
   const normalCommands = [
+    COMMANDS.LOCK, COMMANDS.SKIP, COMMANDS.RETRY_WRONG, COMMANDS.GO_TO,
     COMMANDS.EXPLAIN_AGAIN,
     COMMANDS.READ_OPTIONS,
     COMMANDS.SECTION_STATUS,

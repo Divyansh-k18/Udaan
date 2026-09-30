@@ -1,14 +1,4 @@
-// src/services/listen.js
-
-/**
- * One-time browser speech recognition for Udaan.
- *
- * IMPORTANT:
- * - Always start listening from an explicit user action
- *   such as clicking a "Listen" button or pressing a keyboard shortcut.
- * - Never auto-start the microphone.
- * - Keyboard controls must always remain available.
- */
+import { stopSpeaking } from "./speech.js";
 
 export class ListenError extends Error {
   constructor(code, message, originalError = null) {
@@ -18,250 +8,74 @@ export class ListenError extends Error {
     this.originalError = originalError;
   }
 }
-
-/**
- * Check whether this browser provides SpeechRecognition.
- */
+let active = null;
 export function isSpeechRecognitionSupported() {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return Boolean(
-    window.SpeechRecognition || window.webkitSpeechRecognition
-  );
+  return typeof window !== "undefined" && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
 }
+function report(state, message = "", heard = "") {
+  if (typeof window !== "undefined" && window.dispatchEvent) {
+    window.dispatchEvent(new CustomEvent("udaan:recognition-status", { detail: { state, message, heard } }));
+  }
+}
+export function isListening() { return active !== null; }
+export function cancelListening() { active?.cancel(); }
 
-/**
- * Listen once and return up to 3 recognition alternatives.
- *
- * Example return value:
- *
- * [
- *   {
- *     transcript: "next question",
- *     confidence: 0.92
- *   },
- *   {
- *     transcript: "next",
- *     confidence: 0.71
- *   }
- * ]
- *
- * Possible error codes:
- *
- * not-supported
- * mic-blocked
- * no-speech
- * network
- * recognition-error
- */
-export function listenOnce(langCode = "en-IN") {
+// Explicit, single-shot recognition. Never restart on end or error.
+export function listenOnce(langCode = "en-IN", { signal } = {}) {
+  if (!isSpeechRecognitionSupported()) return Promise.reject(new ListenError("not-supported", "Voice commands are unavailable in this browser. Keyboard and screen-reader controls remain available."));
+  if (active) return Promise.reject(new ListenError("busy", "A voice command is already being heard."));
+  if (signal?.aborted) return Promise.reject(new ListenError("cancelled", "Listening stopped."));
+  stopSpeaking();
   return new Promise((resolve, reject) => {
-    if (typeof window === "undefined") {
-      reject(
-        new ListenError(
-          "not-supported",
-          "Speech recognition is not available in this environment."
-        )
-      );
-      return;
-    }
-
-    const SpeechRecognitionClass =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SpeechRecognitionClass) {
-      reject(
-        new ListenError(
-          "not-supported",
-          "Speech recognition is not supported by this browser."
-        )
-      );
-      return;
-    }
-
-    const recognition = new SpeechRecognitionClass();
-
-    // We only want one spoken command.
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    try { recognition = new Recognition(); }
+    catch (error) { reject(new ListenError("recognition-error", "Could not start speech recognition.", error)); return; }
     recognition.continuous = false;
-
-    // Only final speech results.
     recognition.interimResults = false;
-
-    // Ask browser for maximum 3 possible interpretations.
-    recognition.maxAlternatives = 3;
-
-    // Example:
-    // en-IN
-    // hi-IN
-    // mr-IN
-    // gu-IN
-    // bn-IN
-    // ta-IN
+    recognition.maxAlternatives = 5;
     recognition.lang = langCode || "en-IN";
-
     let finished = false;
-
-    function resolveOnce(value) {
+    let timer;
+    const cancel = () => finish(new ListenError("cancelled", "Listening stopped."));
+    function finish(error, alternatives) {
       if (finished) return;
-
       finished = true;
-      resolve(value);
+      clearTimeout(timer);
+      signal?.removeEventListener("abort", cancel);
+      recognition.onresult = recognition.onerror = recognition.onend = recognition.onstart = recognition.onspeechend = null;
+      // Release the microphone before resolving and executing a command.
+      try { recognition.abort(); } catch { /* Already stopped. */ }
+      active = null;
+      if (error) {
+        const state = error.code === "cancelled" ? "idle" : error.code === "mic-blocked" ? "mic-blocked" : error.code === "no-speech" ? "not-understood" : "error";
+        report(state, error.message);
+        reject(error);
+      } else {
+        report("recognized", "Speech received.", alternatives[0].transcript);
+        resolve(alternatives);
+      }
     }
-
-    function rejectOnce(error) {
-      if (finished) return;
-
-      finished = true;
-      reject(error);
-    }
-
-    recognition.onresult = (event) => {
-      const result =
-        event.results[event.resultIndex] ||
-        event.results[0];
-
-      if (!result || result.length === 0) {
-        rejectOnce(
-          new ListenError(
-            "no-speech",
-            "No speech was recognized."
-          )
-        );
-        return;
-      }
-
-      const alternatives = [];
-
-      const count = Math.min(result.length, 3);
-
-      for (let i = 0; i < count; i += 1) {
-        const alternative = result[i];
-
-        const transcript =
-          alternative?.transcript?.trim() || "";
-
-        if (!transcript) {
-          continue;
-        }
-
-        alternatives.push({
-          transcript,
-
-          confidence:
-            typeof alternative.confidence === "number"
-              ? alternative.confidence
-              : null,
-        });
-      }
-
-      if (alternatives.length === 0) {
-        rejectOnce(
-          new ListenError(
-            "no-speech",
-            "No speech was recognized."
-          )
-        );
-        return;
-      }
-
-      resolveOnce(alternatives);
+    active = { cancel };
+    signal?.addEventListener("abort", cancel, { once: true });
+    recognition.onstart = () => report("listening", "Listening…");
+    recognition.onspeechend = () => report("processing", "Processing…");
+    recognition.onresult = event => {
+      const result = event.results[event.resultIndex] || event.results[0];
+      if (result?.isFinal === false) return;
+      const alternatives = Array.from(result || []).filter(item => item?.transcript?.trim()).map(item => ({ transcript: item.transcript.trim(), confidence: typeof item.confidence === "number" ? item.confidence : null }));
+      finish(alternatives.length ? null : new ListenError("no-speech", "No speech detected. Try again."), alternatives);
     };
-
-    recognition.onerror = (event) => {
-      const browserError = event.error;
-
-      switch (browserError) {
-        case "not-allowed":
-        case "service-not-allowed":
-        case "audio-capture":
-          rejectOnce(
-            new ListenError(
-              "mic-blocked",
-              "Microphone access is blocked or unavailable.",
-              browserError
-            )
-          );
-          break;
-
-        case "no-speech":
-          rejectOnce(
-            new ListenError(
-              "no-speech",
-              "No speech was detected. Please try again.",
-              browserError
-            )
-          );
-          break;
-
-        case "network":
-          rejectOnce(
-            new ListenError(
-              "network",
-              "Speech recognition could not connect to the network.",
-              browserError
-            )
-          );
-          break;
-
-        case "language-not-supported":
-          rejectOnce(
-            new ListenError(
-              "not-supported",
-              `Speech recognition does not support ${langCode} in this browser.`,
-              browserError
-            )
-          );
-          break;
-
-        default:
-          rejectOnce(
-            new ListenError(
-              "recognition-error",
-              "Speech recognition failed.",
-              browserError
-            )
-          );
-      }
+    recognition.onerror = event => {
+      const blocked = ["not-allowed", "service-not-allowed", "audio-capture"].includes(event.error);
+      const code = blocked ? "mic-blocked" : event.error === "no-speech" ? "no-speech" : event.error === "network" ? "network" : "recognition-error";
+      const message = blocked ? "Microphone permission is blocked. Enable microphone permission or use keyboard controls." : code === "no-speech" ? "No speech detected. Try again." : code === "network" ? "Voice recognition could not connect. Try again or use keyboard controls." : "Voice recognition failed. Try again or use keyboard controls.";
+      finish(new ListenError(code, message, event.error));
     };
-
-    // Sometimes browsers stop without giving a result.
-    recognition.onend = () => {
-      if (!finished) {
-        rejectOnce(
-          new ListenError(
-            "no-speech",
-            "Listening ended before speech was recognized."
-          )
-        );
-      }
-    };
-
-    try {
-      recognition.start();
-    } catch (error) {
-      if (
-        error?.name === "NotAllowedError" ||
-        error?.name === "SecurityError"
-      ) {
-        rejectOnce(
-          new ListenError(
-            "mic-blocked",
-            "Microphone access is blocked.",
-            error
-          )
-        );
-        return;
-      }
-
-      rejectOnce(
-        new ListenError(
-          "recognition-error",
-          "Could not start speech recognition.",
-          error
-        )
-      );
-    }
+    recognition.onend = () => finish(new ListenError("no-speech", "No speech detected. Try again."));
+    timer = setTimeout(() => finish(new ListenError("no-speech", "No speech detected. Try again.")), 15000);
+    report("listening", "Listening…");
+    try { recognition.start(); }
+    catch (error) { finish(new ListenError(["NotAllowedError", "SecurityError"].includes(error.name) ? "mic-blocked" : "recognition-error", "Could not start the microphone. Check permission or use keyboard controls.", error)); }
   });
 }

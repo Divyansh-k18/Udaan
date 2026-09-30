@@ -1,0 +1,8 @@
+.exam-voice-panel { border: 2px solid currentColor; border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+.exam-voice-panel > strong { margin-right: 1rem; }
+.exam-voice-panel button, .exam-question-navigator button, .exam-categories button { min-height: 44px; padding: .65rem 1rem; margin: .25rem; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: 8px; cursor: pointer; }
+.exam-voice-panel button:disabled, .exam-question-navigator button:disabled { opacity: .65; cursor: default; }
+.exam-question-navigator { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .5rem; margin: 1rem 0; }
+.exam-question-navigator button { text-align: left; }
+.exam-question-navigator [aria-current], .exam-categories [aria-pressed="true"] { outline: 3px solid currentColor; outline-offset: 2px; font-weight: bold; }
+.exam-categories { margin-bottom: 1.5rem; }

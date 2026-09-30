@@ -21,7 +21,7 @@ export default function VoiceGuide() {
     return () => window.removeEventListener("udaan:speech-status", receive);
   }, []);
   useEffect(() => {
-    if (!enabled || pathname.startsWith("/exam/")) return;
+    if (!enabled || /^\/(exam|prepare|mode)(\/|$)|^\/exams$/.test(pathname)) return;
     const timer = setTimeout(() => speak("Welcome to Udaan. " + keyboardGuide, "en-IN", rate), 250);
     return () => { clearTimeout(timer); stopSpeaking(); };
   }, [pathname, enabled, rate]);

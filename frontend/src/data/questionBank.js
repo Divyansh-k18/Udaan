@@ -1,3 +1,4 @@
+import { demoQuestions } from "./demoQuestions.js";
 import { examCatalog } from "./examCatalog.js";
 
 /*
@@ -34,6 +35,7 @@ function L(en, hi, mr, gu, bn, ta) {
 }
 
 export const questionBank = [
+  ...demoQuestions,
   // =========================================================
   // REASONING
   // =========================================================
@@ -1114,7 +1116,9 @@ export function getQuestions({
   let matches = questionBank.filter((question) => {
     if (
       exam &&
-      !question.exams.includes(exam)
+      !question.exams.includes(exam) &&
+      !(exam === "aptitude-demo" && question.subject === "Mathematics" && question.exams.includes("ssc-cgl-mini")) &&
+      !(exam === "reasoning-demo" && question.subject === "Reasoning" && question.exams.includes("ssc-cgl-mini"))
     ) {
       return false;
     }

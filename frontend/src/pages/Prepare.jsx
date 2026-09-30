@@ -1,3 +1,5 @@
+import ExamVoicePanel from "../components/ExamVoicePanel";
+import useExamVoice from "../hooks/useExamVoice";
 import {
   useEffect,
   useMemo,
@@ -7,6 +9,7 @@ import {
 
 import {
   useNavigate,
+  useLocation,
   useParams,
 } from "react-router-dom";
 
@@ -21,8 +24,7 @@ import {
   playBeep,
 } from "../services/speech";
 
-import { listenOnce } from "../services/listen";
-import { matchCommand } from "../voice/commands";
+import { cancelListening, isListening } from "../services/listen";
 import useShortcuts from "../hooks/useShortcuts";
 
 import {
@@ -176,35 +178,9 @@ function commandOptionToIndex(value) {
   Existing voice commands still go through
   matchCommand().
 */
-function matchPrepareOnlyCommand(text) {
-  const value = String(text || "")
-    .trim()
-    .toLowerCase();
-
-  if (
-    value.includes("retry wrong") ||
-    value.includes("retry incorrect") ||
-    value.includes("try wrong again")
-  ) {
-    return {
-      command: "RETRY_WRONG",
-    };
-  }
-
-  if (
-    value === "skip" ||
-    value === "skip question" ||
-    value === "skip this question"
-  ) {
-    return {
-      command: "SKIP",
-    };
-  }
-
-  return null;
-}
-
 function Prepare() {
+  const location = useLocation();
+  const [drafts, setDrafts] = useState({});
   const { examId } = useParams();
   const navigate = useNavigate();
 
@@ -233,7 +209,7 @@ function Prepare() {
   const [phase, setPhase] = useState("select");
 
   const [selectedSubject, setSelectedSubject] =
-    useState("");
+    useState(location.state?.subject || "");
 
   const [selectedTopic, setSelectedTopic] =
     useState("");
@@ -435,7 +411,7 @@ function Prepare() {
     return options
       .map(
         (option, index) =>
-          `${optionLetter(index)}. ${option}`
+          `Option ${optionLetter(index)}. ${option}`
       )
       .join(". ");
   }
@@ -458,7 +434,7 @@ function Prepare() {
     const optionsSpeech =
       buildOptionsSpeech(question);
 
-    return `${spoken}. ${ui(
+    return `Question ${currentIndex + 1} of ${questions.length}. ${spoken}. ${ui(
       "prepare.options",
       "Options"
     )}. ${optionsSpeech}`;
@@ -479,7 +455,6 @@ function Prepare() {
     );
   }
 
-  const introductionRead = useRef(false);
   const readingRef = useRef(null);
   useEffect(() => { readingRef.current = { currentQuestion, buildQuestionSpeech }; });
 
@@ -491,7 +466,6 @@ function Prepare() {
     HTML instead, preventing double speech.
   */
   useEffect(() => {
-    if (phase !== "practice") introductionRead.current = false;
     if (
       phase !== "practice" ||
       !readingRef.current.currentQuestion ||
@@ -501,16 +475,17 @@ function Prepare() {
     }
 
     const timeout = window.setTimeout(() => {
+      if (isListening()) return;
       speak(
-        (introductionRead.current ? "" : `${ui("prepare.practiceStarted", "Practice started.")} `) + readingRef.current.buildQuestionSpeech(readingRef.current.currentQuestion),
+        readingRef.current.buildQuestionSpeech(readingRef.current.currentQuestion),
         language,
         speechRate
       );
-      introductionRead.current = true;
     }, 100);
 
     return () => {
       window.clearTimeout(timeout);
+      stopSpeaking();
     };
   }, [
     phase,
@@ -520,6 +495,13 @@ function Prepare() {
     language,
     speechRate,
   ]);
+
+  useEffect(() => {
+    if (phase === "practice") {
+      document.getElementById("question-text")?.focus();
+      setLiveMessage(`Question ${currentIndex + 1} opened.`);
+    }
+  }, [phase, currentIndex, currentQuestion?.id]);
 
   function startPractice(
     topicOverride = selectedTopic,
@@ -584,6 +566,7 @@ function Prepare() {
       setQuestions(loadedQuestions);
       setCurrentIndex(0);
       setAnswers({});
+      setDrafts({});
       setWeakTopic(null);
       setPhase("practice");
 
@@ -746,6 +729,17 @@ function Prepare() {
   }
 
   function selectOption(optionIndex) {
+    if (phase !== "practice" || !currentQuestion || currentAnswer) return;
+    if (optionIndex < 0 || optionIndex >= currentOptions.length) return;
+    setDrafts(previous => ({ ...previous, [currentQuestion.id]: optionIndex }));
+    const message = `Option ${optionLetter(optionIndex)} selected.`;
+    setLiveMessage(message);
+    speakOnlyInUdaanMode(message);
+  }
+
+  function lockAnswer() {
+    const optionIndex = drafts[currentQuestion?.id];
+    if (!Number.isInteger(optionIndex)) { setLiveMessage("Select an option before locking your answer."); return; }
     if (
       phase !== "practice" ||
       !currentQuestion
@@ -802,13 +796,13 @@ function Prepare() {
 
     if (correct) {
       resultMessage =
-        `${ui(
+        `Option ${optionLetter(optionIndex)} locked. ${ui(
           "prepare.correct",
           "Correct."
         )} ${currentExplanation}`;
     } else {
       resultMessage =
-        `${ui(
+        `Option ${optionLetter(optionIndex)} locked. ${ui(
           "prepare.wrong",
           "Wrong."
         )} ` +
@@ -975,6 +969,7 @@ function Prepare() {
       return;
     }
 
+    setDrafts(previous => { const updated = { ...previous }; delete updated[currentQuestion.id]; return updated; });
     setAnswers((previous) => {
       const updated = {
         ...previous,
@@ -1013,6 +1008,7 @@ function Prepare() {
   }
 
   function stopEverything() {
+    cancelListening();
     stopSpeaking();
     setShowHelp(false);
 
@@ -1031,7 +1027,19 @@ function Prepare() {
     Keyboard, buttons and voice all eventually
     call functions from this same object.
   */
+  function clearAnswer() {
+    if (!currentQuestion) return;
+    if (currentAnswer) { setLiveMessage("This answer is locked. Use Retry wrong to retry an incorrect answer."); return; }
+    setDrafts(previous => { const next = { ...previous }; delete next[currentQuestion.id]; return next; });
+    setLiveMessage("Answer cleared.");
+  }
+  function progress() {
+    const message = `Progress. Question ${currentIndex + 1} of ${questions.length}. ${attemptedCount} answered. ${questions.length - attemptedCount} unanswered.`;
+    setLiveMessage(message); speakOnlyInUdaanMode(message);
+  }
+  const voice = useExamVoice({ language, enabled: voiceCommandsEnabled, onCommand: handleVoiceCommand, scope: `${examId}:${phase}:${currentQuestion?.id}` });
   const handlers = {
+    lockAnswer, clearAnswer, progress,
     next: nextQuestion,
     previous: previousQuestion,
     repeat: repeatQuestion,
@@ -1044,143 +1052,7 @@ function Prepare() {
     help: openHelp,
     stop: stopEverything,
 
-    listen: async () => {
-      if (!voiceCommandsEnabled) {
-        setLiveMessage(
-          ui(
-            "prepare.voiceCommandsOff",
-            "Voice commands are turned off in accessibility settings."
-          )
-        );
-
-        return;
-      }
-
-      try {
-        if (voiceMode !== "silent") {
-          playBeep("listen");
-        }
-
-        setLiveMessage(
-          ui(
-            "prepare.listening",
-            "Listening..."
-          )
-        );
-
-        const alternatives =
-          await listenOnce(language);
-
-        let matched = null;
-        let heardText = "";
-
-        for (
-          const alternative of alternatives
-        ) {
-          const transcript =
-            alternative?.transcript || "";
-
-          if (!heardText) {
-            heardText = transcript;
-          }
-
-          matched =
-            matchPrepareOnlyCommand(
-              transcript
-            ) ||
-            matchCommand(
-              transcript,
-              language
-            );
-
-          if (matched) {
-            break;
-          }
-        }
-
-        if (!matched) {
-          if (
-            voiceMode !== "silent"
-          ) {
-            playBeep("error");
-          }
-
-          setLiveMessage(
-            heardText
-              ? `Heard: ${heardText}. ${ui(
-                  "prepare.unknownCommand",
-                  "Command not recognised."
-                )}`
-              : ui(
-                  "prepare.unknownCommand",
-                  "Command not recognised."
-                )
-          );
-
-          return;
-        }
-
-        if (voiceMode !== "silent") {
-          playBeep("ok");
-        }
-
-        setLiveMessage(
-          heardText
-            ? `Heard: ${heardText}`
-            : ui(
-                "prepare.commandReceived",
-                "Voice command received."
-              )
-        );
-
-        handleVoiceCommand(matched);
-      } catch (error) {
-        console.error(error);
-
-        if (voiceMode !== "silent") {
-          try {
-            playBeep("error");
-          } catch {
-            // Ignore audio failure.
-          }
-        }
-
-        const errorCode =
-          error?.code || "";
-
-        if (
-          errorCode ===
-          "not-supported"
-        ) {
-          setLiveMessage(
-            "Voice input is not supported in this browser. Keyboard controls still work."
-          );
-        } else if (
-          errorCode ===
-          "mic-blocked"
-        ) {
-          setLiveMessage(
-            "Microphone access is blocked. Allow microphone permission or use the keyboard."
-          );
-        } else if (
-          errorCode === "no-speech"
-        ) {
-          setLiveMessage(
-            "No speech was detected. Please try again."
-          );
-        } else if (
-          errorCode === "network"
-        ) {
-          setLiveMessage(
-            "Voice recognition had a network problem. Keyboard controls still work."
-          );
-        } else {
-          setLiveMessage(
-            "Voice command could not be heard. Keyboard controls still work."
-          );
-        }
-      }
-    },
+    listen: voice.listen,
   };
 
   /*
@@ -1213,6 +1085,10 @@ function Prepare() {
       commandData?.value;
 
     switch (commandName) {
+      case "LOCK": handlers.lockAnswer(); break;
+      case "CLEAR": handlers.clearAnswer(); break;
+      case "PROGRESS": handlers.progress(); break;
+      case "START_EXAM": if (phase === "select") startPractice(); break;
       case "NEXT":
         handlers.next();
         break;
@@ -1316,27 +1192,6 @@ function Prepare() {
     Listen to it here and route it through
     the same handlers object.
   */
-  useEffect(() => {
-    function receiveVoiceCommand(
-      event
-    ) {
-      handleVoiceCommand(
-        event.detail
-      );
-    }
-
-    window.addEventListener(
-      "udaan:voice-command",
-      receiveVoiceCommand
-    );
-
-    return () => {
-      window.removeEventListener(
-        "udaan:voice-command",
-        receiveVoiceCommand
-      );
-    };
-  });
 
   function chooseAnotherTopic() {
     stopSpeaking();
@@ -1701,12 +1556,13 @@ function Prepare() {
         </p>
       </section>
 
+      <ExamVoicePanel voice={voice} feedback={liveMessage} />
       {currentQuestion && (
         <article
           className="prepare-question"
           aria-labelledby="question-text"
         >
-          <h2 id="question-text">
+          <h2 id="question-text" tabIndex={-1}>
             {currentQuestionText}
           </h2>
 
@@ -1718,8 +1574,7 @@ function Prepare() {
             {currentOptions.map(
               (option, index) => {
                 const selected =
-                  currentAnswer?.selected ===
-                  index;
+                  (currentAnswer?.selected ?? drafts[currentQuestion.id]) === index;
 
                 return (
                   <button
@@ -1757,6 +1612,10 @@ function Prepare() {
             )}
           </div>
 
+          <p>{currentAnswer ? "Locked" : "Selected"}: {Number.isInteger(currentAnswer?.selected ?? drafts[currentQuestion.id]) ? `Option ${optionLetter(currentAnswer?.selected ?? drafts[currentQuestion.id])}` : "No option"}</p>
+          <button type="button" onClick={handlers.lockAnswer} disabled={!!currentAnswer || !Number.isInteger(drafts[currentQuestion.id])}>Lock Answer</button>
+          <button type="button" onClick={handlers.clearAnswer} disabled={!!currentAnswer}>Clear Answer</button>
+          <button type="button" onClick={handlers.progress}>Progress</button>
           {currentAnswer && (
             <section
               className="prepare-feedback"
@@ -1764,8 +1623,8 @@ function Prepare() {
             >
               <h3 id="answer-result">
                 {currentAnswer.correct
-                  ? "Correct"
-                  : "Wrong"}
+                  ? "✓ Correct"
+                  : "✕ Incorrect"}
               </h3>
 
               {!currentAnswer.correct &&
@@ -1946,7 +1805,7 @@ function Prepare() {
             Voice commands include next,
             previous, repeat, read options,
             option A, option B, option C,
-            option D, bookmark, skip,
+            option D, lock answer, clear answer, progress, bookmark, skip,
             retry wrong, explain again,
             help and stop.
           </p>
@@ -1974,14 +1833,7 @@ function Prepare() {
         </p>
       )}
 
-      <div
-        className="sr-live"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {liveMessage}
-      </div>
+
     </section>
   );
 }

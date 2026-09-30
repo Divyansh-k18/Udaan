@@ -154,6 +154,24 @@ export const examCatalog = [
   },
 ];
 
+
+export const examCategories = ["Government Exams", "School", "Engineering Entrance", "Medical Entrance", "Other Competitive Exams"];
+for (const exam of examCatalog) exam.category = "Government Exams";
+examCatalog[0].name["en-IN"] = "SSC style demo";
+examCatalog[1].name["en-IN"] = "Banking style demo";
+examCatalog[2].name["en-IN"] = "Railway style demo";
+const demos = [
+  ...[9, 10, 11, 12].map(year => [`class-${year}-demo`, `Class ${year} mathematics demo`, "School", ["Mathematics"], 2]),
+  ["jee-demo", "JEE style fundamentals demo", "Engineering Entrance", ["Mathematics", "Physics", "Chemistry"], 2],
+  ["neet-demo", "NEET style fundamentals demo", "Medical Entrance", ["Physics", "Chemistry", "Biology"], 2],
+  ["aptitude-demo", "Aptitude demo", "Other Competitive Exams", ["Mathematics"], 4],
+  ["reasoning-demo", "Reasoning demo", "Other Competitive Exams", ["Reasoning"], 4],
+];
+for (const [id, name, category, subjects, count] of demos) {
+  examCatalog.push({ id, name: { "en-IN": name }, category, totalMinutes: subjects.length * count * 2, sectionalTiming: false,
+    sections: subjects.map(subject => ({ name: subject, subject, questions: count, minutes: count * 2, marks: 1, negative: 0 })) });
+}
+
 /*
   Returns the exam matching the given ID.
 */

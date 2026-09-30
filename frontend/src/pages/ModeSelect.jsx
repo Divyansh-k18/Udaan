@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useNavigate,
   useParams,
@@ -12,6 +12,7 @@ import {
 import "../styles/themes.css";
 
 function ModeSelect() {
+  const [mode, setMode] = useState("");
   const { examId } = useParams();
 
   const navigate = useNavigate();
@@ -99,11 +100,11 @@ function ModeSelect() {
   const totalQuestions = getTotalQuestions(exam);
 
   const startPrepare = () => {
-    navigate(`/prepare/${exam.id}`);
+    setMode("prepare");
   };
 
   const startMock = () => {
-    navigate(`/exam/${exam.id}`);
+    setMode("exam");
   };
 
   return (
@@ -151,6 +152,11 @@ function ModeSelect() {
             </p>
           </header>
 
+          {mode && <section aria-label="Choose subject or section">
+            <h2>Choose a subject or section</h2>
+            <p>{mode === "exam" ? "The mock includes all sections. Choose your starting section; timed mocks begin with the first section." : "Choose a subject, then a topic to practise."}</p>
+            {exam.sections.map((section, index) => <button type="button" className="secondary-button" key={section.name} disabled={mode === "exam" && exam.sectionalTiming && index !== 0} onClick={() => navigate(`/${mode}/${exam.id}`, { state: { subject: section.subject, sectionIndex: index } })}>{section.name}</button>)}
+          </section>}
           <div className="setup-section">
             <button
               type="button"
