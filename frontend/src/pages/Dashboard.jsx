@@ -37,9 +37,7 @@ function Dashboard() {
     return translated;
   };
 
-  useEffect(() => {
-    headingRef.current?.focus();
-  }, []);
+
 
   /*
     Quiet backend health check.
@@ -209,8 +207,18 @@ function Dashboard() {
         </button>
       </nav>
 
+      <section className="impact-section" aria-labelledby="impact-title">
+        <p className="eyebrow">INCLUSION BY DESIGN</p>
+        <h2 id="impact-title">Learning opportunities, built for more people</h2>
+        <div className="impact-grid">
+          <article><span className="impact-number">SDG 4</span><h3>Quality Education</h3><p>Udaan supports SDG 4 by improving access to digital learning and assessment for students with disabilities.</p></article>
+          <article><span className="impact-number">SDG 9</span><h3>Industry, Innovation and Infrastructure</h3><p>Udaan supports SDG 9 by demonstrating inclusive digital infrastructure built with accessible web technologies, assistive-technology support and voice-enabled interaction.</p></article>
+        </div>
+        <p>Designed around accessible practices and WCAG 2.1 AA principles. User testing and an independent accessibility audit are still needed.</p>
+      </section>
       {showHelp && (
         <section
+          onKeyDown={event => { if (event.key === "Escape") { event.preventDefault(); closeHelp(); } }}
           id="dashboard-help"
           className="dashboard-help"
           aria-labelledby="dashboard-help-heading"

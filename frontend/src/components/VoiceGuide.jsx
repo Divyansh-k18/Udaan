@@ -21,8 +21,10 @@ export default function VoiceGuide() {
     return () => window.removeEventListener("udaan:speech-status", receive);
   }, []);
   useEffect(() => {
-    if (!enabled || pathname.startsWith("/exam/")) return;
-    const timer = setTimeout(() => speak("Welcome to Udaan. " + keyboardGuide, "en-IN", rate), 250);
+    // Setup owns its one-time welcome; exam pages own their contextual narration.
+    const context = { '/login': 'Login.', '/dashboard': 'Dashboard.', '/exams': 'Choose an exam category.', '/progress': 'Progress.', '/result': 'Results.', '/report': 'Report.' }[pathname];
+    if (!enabled || !context) return;
+    const timer = setTimeout(() => speak(context, "en-IN", rate), 250);
     return () => { clearTimeout(timer); stopSpeaking(); };
   }, [pathname, enabled, rate]);
   useEffect(() => {
@@ -45,6 +47,6 @@ export default function VoiceGuide() {
     <div className="voice-guide-copy"><Icon name="headphones" /><div><strong>Your keyboard companion</strong><p>{enabled ? "Spoken help is on. No microphone needed." : "Spoken help is off. You can read the instructions below."}</p></div></div>
     <div className="voice-guide-actions"><button id="read-keyboard-guide" onClick={readGuide} aria-keyshortcuts="Alt+k"><Icon name="keyboard" />{enabled ? "Read keyboard guide" : "Enable voice guide"}</button><button onClick={() => { stopSpeaking(); updatePreference("voiceMode", "silent"); }}><Icon name="stop" />Stop & mute</button></div>
     <details><summary>Read keyboard instructions</summary><p>{keyboardGuide}</p></details>
-    {status && <p className="voice-guide-status" role="status">{status}</p>}
+    {status && <p className="voice-guide-status" aria-live="off">{status}</p>}
   </aside>;
 }
