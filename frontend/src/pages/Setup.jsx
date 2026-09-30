@@ -11,8 +11,11 @@ import "../styles/themes.css";
 export default function Setup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
   const editing = searchParams.get("edit") === "1";
+
   const headingRef = useRef(null);
+  const startButtonRef = useRef(null);
 
   const {
     preferences,
@@ -27,16 +30,41 @@ export default function Setup() {
     t,
   } = useLanguage();
 
+  /*
+    When opening Settings from inside Udaan,
+    skip the welcome page.
+
+    On the very first visit,
+    show "Press Enter to start".
+  */
   const [started, setStarted] = useState(editing);
-  const startButtonRef = useRef(null);
 
+  /*
+    FIRST PAGE ONLY
+
+    Focus the start button so NVDA/screen readers
+    announce "Press Enter to start, button".
+  */
   useEffect(() => {
-    startButtonRef.current?.focus();
-  }, []);
+    if (!started) {
+      startButtonRef.current?.focus();
+    }
+  }, [started]);
 
+  /*
+    After Enter/start is pressed,
+    focus the Accessibility Setup heading.
+
+    We DO NOT read the welcome instructions again.
+  */
   useEffect(() => {
     document.title = "Accessibility setup | Udaan";
-    if (started) headingRef.current?.focus();
+
+    if (started) {
+      requestAnimationFrame(() => {
+        headingRef.current?.focus();
+      });
+    }
   }, [started]);
 
   function handleStart() {
@@ -46,57 +74,133 @@ export default function Setup() {
   function handleSubmit(event) {
     event.preventDefault();
 
-    try { storage.setItem("udaan-setup-complete", "true"); } catch { /* Preferences remain usable for this visit. */ }
+    try {
+      storage.setItem(
+        "udaan-setup-complete",
+        "true"
+      );
+    } catch {
+      /*
+        Preferences can still work for the
+        current browser session.
+      */
+    }
 
-    navigate(editing ? "/dashboard" : "/login");
+    navigate(
+      editing
+        ? "/dashboard"
+        : "/login"
+    );
   }
 
+  /*
+    --------------------------------------------------
+    FIRST PAGE
+    --------------------------------------------------
+
+    This is the ONLY page that shows the initial
+    Udaan instructions.
+
+    The start button receives focus automatically.
+  */
   if (!started) {
     return (
-      <main className="setup-page" id="main-content" tabIndex={-1}>
-        <section className="start-card landscape-welcome"><div className="welcome-copy">
-          <p className="brand"><BrandMark /> Udaan</p>
+      <main
+        className="setup-page"
+        id="main-content"
+        tabIndex={-1}
+      >
+        <section className="start-card landscape-welcome">
+          <div className="welcome-copy">
+            <p className="brand">
+              <BrandMark /> Udaan
+            </p>
 
-          <h1>{t("setup.welcome")}</h1>
-          <p className="welcome-promise">Your ambition. Your pace.<br />Your way to learn.</p>
-          <p>Independent exam preparation with readable questions, keyboard controls and optional voice support.</p>
+            <h1>
+              {t("setup.welcome")}
+            </h1>
 
-          <p className="setup-description">
-            {t("setup.instructions")}
-          </p>
+            <p className="welcome-promise">
+              Your ambition. Your pace.
+              <br />
+              Your way to learn.
+            </p>
 
-          <button
-            ref={startButtonRef}
-            type="button"
-            className="primary-button start-button"
-            onClick={handleStart}
-          >
-            {t("setup.start")}
-          </button>
-        </div><div className="welcome-art"><LearningIllustration /></div></section>
+            <p>
+              Independent exam preparation with
+              readable questions, keyboard controls
+              and optional voice support.
+            </p>
+
+            {/*
+              Initial instructions appear ONLY here.
+            */}
+            <p className="setup-description">
+              {t("setup.instructions")}
+            </p>
+
+            <button
+              ref={startButtonRef}
+              type="button"
+              className="primary-button start-button"
+              onClick={handleStart}
+              aria-label="Press Enter to start"
+            >
+              Press Enter to start
+            </button>
+          </div>
+
+          <div className="welcome-art">
+            <LearningIllustration />
+          </div>
+        </section>
       </main>
     );
   }
 
+  /*
+    --------------------------------------------------
+    ACCESSIBILITY SETTINGS
+    --------------------------------------------------
+
+    IMPORTANT:
+    setup.instructions is intentionally NOT shown here.
+
+    That prevents the initial instructions from
+    being repeated after the user presses Enter.
+  */
   return (
-    <main className="setup-page" id="main-content">
-      <form className="setup-card landscape-setup" onSubmit={handleSubmit}>
+    <main
+      className="setup-page"
+      id="main-content"
+    >
+      <form
+        className="setup-card landscape-setup"
+        onSubmit={handleSubmit}
+      >
         <header className="setup-header">
-          <p className="brand"><BrandMark /> Udaan</p>
-
-          <h1 ref={headingRef} tabIndex={-1}>{t("setup.title")}</h1>
-
-          <p className="setup-description">
-            {t("setup.instructions")}
+          <p className="brand">
+            <BrandMark /> Udaan
           </p>
+
+          <h1
+            ref={headingRef}
+            tabIndex={-1}
+          >
+            {t("setup.title")}
+          </h1>
         </header>
 
         {/* LANGUAGE */}
 
         <fieldset className="setup-section">
-          <legend>{t("language.title")}</legend>
+          <legend>
+            {t("language.title")}
+          </legend>
 
-          <p>{t("language.description")}</p>
+          <p>
+            {t("language.description")}
+          </p>
 
           <label htmlFor="language-select">
             {t("language.title")}
@@ -111,7 +215,10 @@ export default function Setup() {
             }
           >
             {languages.map((item) => (
-              <option key={item.code} value={item.code}>
+              <option
+                key={item.code}
+                value={item.code}
+              >
                 {item.nativeName}
               </option>
             ))}
@@ -121,7 +228,9 @@ export default function Setup() {
         {/* THEME */}
 
         <fieldset className="setup-section">
-          <legend>{t("setup.theme")}</legend>
+          <legend>
+            {t("setup.theme")}
+          </legend>
 
           <div className="option-grid">
             <label className="option-card">
@@ -129,7 +238,9 @@ export default function Setup() {
                 type="radio"
                 name="theme"
                 value="light"
-                checked={preferences.theme === "light"}
+                checked={
+                  preferences.theme === "light"
+                }
                 onChange={(event) =>
                   updatePreference(
                     "theme",
@@ -138,7 +249,9 @@ export default function Setup() {
                 }
               />
 
-              <span>{t("theme.light")}</span>
+              <span>
+                {t("theme.light")}
+              </span>
             </label>
 
             <label className="option-card">
@@ -146,7 +259,9 @@ export default function Setup() {
                 type="radio"
                 name="theme"
                 value="dark"
-                checked={preferences.theme === "dark"}
+                checked={
+                  preferences.theme === "dark"
+                }
                 onChange={(event) =>
                   updatePreference(
                     "theme",
@@ -155,7 +270,9 @@ export default function Setup() {
                 }
               />
 
-              <span>{t("theme.dark")}</span>
+              <span>
+                {t("theme.dark")}
+              </span>
             </label>
 
             <label className="option-card">
@@ -164,7 +281,8 @@ export default function Setup() {
                 name="theme"
                 value="high-contrast"
                 checked={
-                  preferences.theme === "high-contrast"
+                  preferences.theme ===
+                  "high-contrast"
                 }
                 onChange={(event) =>
                   updatePreference(
@@ -174,7 +292,9 @@ export default function Setup() {
                 }
               />
 
-              <span>{t("theme.highContrast")}</span>
+              <span>
+                {t("theme.highContrast")}
+              </span>
             </label>
           </div>
         </fieldset>
@@ -182,11 +302,15 @@ export default function Setup() {
         {/* TEXT SIZE */}
 
         <fieldset className="setup-section">
-          <legend>{t("setup.textSize")}</legend>
+          <legend>
+            {t("setup.textSize")}
+          </legend>
 
           <label htmlFor="text-size">
             {t("setup.textSize")}:{" "}
-            <strong>{preferences.textSize}%</strong>
+            <strong>
+              {preferences.textSize}%
+            </strong>
           </label>
 
           <input
@@ -208,7 +332,9 @@ export default function Setup() {
         {/* VOICE MODE */}
 
         <fieldset className="setup-section">
-          <legend>{t("setup.voiceMode")}</legend>
+          <legend>
+            {t("setup.voiceMode")}
+          </legend>
 
           <div className="option-grid">
             <label className="option-card">
@@ -217,7 +343,8 @@ export default function Setup() {
                 name="voiceMode"
                 value="udaan"
                 checked={
-                  preferences.voiceMode === "udaan"
+                  preferences.voiceMode ===
+                  "udaan"
                 }
                 onChange={(event) =>
                   updatePreference(
@@ -227,7 +354,9 @@ export default function Setup() {
                 }
               />
 
-              <span>{t("voice.udaan")}</span>
+              <span>
+                {t("voice.udaan")}
+              </span>
             </label>
 
             <label className="option-card">
@@ -247,7 +376,9 @@ export default function Setup() {
                 }
               />
 
-              <span>{t("voice.screenReader")}</span>
+              <span>
+                {t("voice.screenReader")}
+              </span>
             </label>
 
             <label className="option-card">
@@ -256,7 +387,8 @@ export default function Setup() {
                 name="voiceMode"
                 value="silent"
                 checked={
-                  preferences.voiceMode === "silent"
+                  preferences.voiceMode ===
+                  "silent"
                 }
                 onChange={(event) =>
                   updatePreference(
@@ -266,7 +398,9 @@ export default function Setup() {
                 }
               />
 
-              <span>{t("voice.silent")}</span>
+              <span>
+                {t("voice.silent")}
+              </span>
             </label>
           </div>
         </fieldset>
@@ -274,11 +408,15 @@ export default function Setup() {
         {/* SPEECH RATE */}
 
         <fieldset className="setup-section">
-          <legend>{t("setup.speechRate")}</legend>
+          <legend>
+            {t("setup.speechRate")}
+          </legend>
 
           <label htmlFor="speech-rate">
             {t("setup.speechRate")}:{" "}
-            <strong>{preferences.speechRate}x</strong>
+            <strong>
+              {preferences.speechRate}x
+            </strong>
           </label>
 
           <input
@@ -300,12 +438,16 @@ export default function Setup() {
         {/* VOICE COMMANDS */}
 
         <fieldset className="setup-section">
-          <legend>{t("setup.voiceCommands")}</legend>
+          <legend>
+            {t("setup.voiceCommands")}
+          </legend>
 
           <label className="switch-row">
             <input
               type="checkbox"
-              checked={preferences.voiceCommands}
+              checked={
+                preferences.voiceCommands
+              }
               onChange={(event) =>
                 updatePreference(
                   "voiceCommands",
@@ -325,7 +467,9 @@ export default function Setup() {
         {/* EXTRA TIME */}
 
         <fieldset className="setup-section">
-          <legend>{t("setup.extraTime")}</legend>
+          <legend>
+            {t("setup.extraTime")}
+          </legend>
 
           <label htmlFor="extra-time">
             {t("setup.extraTime")}:{" "}
@@ -340,7 +484,9 @@ export default function Setup() {
             min="0"
             max="100"
             step="5"
-            value={preferences.extraTimePercent}
+            value={
+              preferences.extraTimePercent
+            }
             onChange={(event) =>
               updatePreference(
                 "extraTimePercent",
