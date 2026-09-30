@@ -1,5 +1,6 @@
 import { useAccessibility } from "../context/AccessibilityContext";
 import { useLanguage } from "../context/LanguageContext";
+import { themes, textSizes } from "../services/accessibilityPreferences";
 import { stopSpeaking } from "../services/speech";
 
 const TEXT = {
@@ -97,17 +98,9 @@ export default function AccessibilityToolbar() {
           <label htmlFor="toolbar-size">
             {text.textSize}: {preferences.textSize}%
           </label>
-          <input
-            id="toolbar-size"
-            type="range"
-            min="100"
-            max="200"
-            step="10"
-            value={preferences.textSize}
-            onChange={(event) =>
-              updatePreference("textSize", Number(event.target.value))
-            }
-          />
+          <select id="toolbar-size" value={preferences.textSize} onChange={event => updatePreference("textSize", Number(event.target.value))}>
+            {Array.from(new Set([...textSizes, preferences.textSize])).sort((a,b) => a-b).map(size => <option key={size} value={size}>{size}%</option>)}
+          </select>
         </div>
 
         <div>
@@ -122,6 +115,7 @@ export default function AccessibilityToolbar() {
             <option value="light">{text.light}</option>
             <option value="dark">{text.dark}</option>
             <option value="high-contrast">{text.contrast}</option>
+            {themes.slice(3).map(([id,label]) => <option key={id} value={id}>{label}</option>)}
           </select>
         </div>
 
