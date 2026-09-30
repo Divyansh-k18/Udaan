@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-const css=readFileSync(new URL('../styles/accessibility.css',import.meta.url),'utf8');
+const css=readFileSync(new URL('../styles/accessibility.css',import.meta.url),'utf8') + readFileSync(new URL('../styles/themes.css',import.meta.url),'utf8');
 function luminance(hex) {
   let h=hex.slice(1); if(h.length===3) h=h.split('').map(x=>x+x).join('');
   return h.match(/../g).map(x=>parseInt(x,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((s,x,i)=>s+x*[.2126,.7152,.0722][i],0);
 }
-for(const theme of [':root','html[data-theme="dark"]','html[data-theme="high-contrast"]']) {
+for(const theme of [':root','html[data-theme="dark"]','html[data-theme="high-contrast"]','html[data-theme="protan-deutan"]','html[data-theme="tritan"]','html[data-theme="reading"]']) {
   test(`${theme}: text, primary controls, borders and focus contrast`,()=>{
     const block=css.slice(css.indexOf(theme)).split('}')[0];
     const colors=Object.fromEntries([...block.matchAll(/--([\w-]+):\s*(#[\da-f]+)/g)].map(m=>[m[1],m[2]]));

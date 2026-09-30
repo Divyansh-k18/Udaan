@@ -12,6 +12,7 @@ function Login() {
     document.title = "Demo sign in | Udaan";
     document.getElementById("login-heading")?.focus();
   }, []);
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,16 +30,6 @@ function Login() {
     return translated;
   };
 
-  const focusPageHeading = () => {
-    setTimeout(() => {
-      const heading = document.querySelector("main h1");
-
-      if (heading) {
-        heading.setAttribute("tabindex", "-1");
-        heading.focus();
-      }
-    }, 0);
-  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -93,7 +84,7 @@ function Login() {
     navigate("/dashboard");
 
     // Move keyboard focus to the new page heading.
-    focusPageHeading();
+
   };
 
   return (
@@ -128,7 +119,7 @@ function Login() {
             <div
               id="login-error"
               role="alert"
-              aria-live="assertive"
+
               style={{
                 marginBottom: "1rem",
                 padding: "1rem",
@@ -136,7 +127,7 @@ function Login() {
                 borderRadius: "10px",
               }}
             >
-              {error}
+              Login failed. {error}
             </div>
           )}
 
@@ -165,7 +156,7 @@ function Login() {
                 }}
                 autoComplete="email"
                 inputMode="email"
-                aria-describedby={error ? "login-error" : undefined}
+                aria-describedby={error && errorField === "email" ? "login-error" : undefined}
                 required
                 aria-required="true"
                 style={{
@@ -187,7 +178,7 @@ function Login() {
                 id="password"
                 aria-invalid={Boolean(error && errorField === "password")}
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 className="setup-select"
                 value={password}
                 onChange={(event) => {
@@ -200,13 +191,14 @@ function Login() {
                 autoComplete="current-password"
                 required
                 aria-required="true"
-                aria-describedby={error ? "password-help login-error" : "password-help"}
+                aria-describedby={error && errorField === "password" ? "password-help login-error" : "password-help"}
                 style={{
                   width: "100%",
                   marginTop: "0.5rem",
                 }}
               />
 
+              <button type="button" className="password-toggle" aria-controls="password" aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)}>Show password</button>
               <p
                 id="password-help"
                 style={{
