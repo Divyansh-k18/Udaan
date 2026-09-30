@@ -1,3 +1,4 @@
+import { storage } from "../services/storage.js";
 import {
   createContext,
   useContext,
@@ -21,7 +22,7 @@ const defaultPreferences = {
 
 function loadPreferences() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = storage.getItem(STORAGE_KEY);
 
     if (!saved) {
       return defaultPreferences;
@@ -31,7 +32,12 @@ function loadPreferences() {
 
     return {
       ...defaultPreferences,
-      ...parsed,
+      theme: ["light", "dark", "high-contrast"].includes(parsed?.theme) ? parsed.theme : "light",
+      textSize: Math.min(200, Math.max(100, Number(parsed?.textSize) || 100)),
+      voiceMode: ["udaan", "screen-reader", "silent"].includes(parsed?.voiceMode) ? parsed.voiceMode : "udaan",
+      speechRate: Math.min(2, Math.max(.5, Number(parsed?.speechRate) || 1)),
+      voiceCommands: parsed?.voiceCommands !== false,
+      extraTimePercent: Math.min(100, Math.max(0, Number(parsed?.extraTimePercent) || 0)),
     };
   } catch (error) {
     console.error("Could not load accessibility preferences:", error);
@@ -44,7 +50,7 @@ export function AccessibilityProvider({ children }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
+      storage.setItem(STORAGE_KEY, JSON.stringify(preferences));
     } catch (error) {
       console.error("Could not save accessibility preferences:", error);
     }
@@ -61,7 +67,7 @@ export function AccessibilityProvider({ children }) {
     );
 
     root.style.colorScheme =
-      preferences.theme === "dark" ? "dark" : "light";
+      preferences.theme === "light" ? "light" : "dark";
   }, [preferences.theme, preferences.textSize]);
 
   const updatePreference = (key, value) => {

@@ -83,6 +83,8 @@ export default function useShortcuts(handlers = {}, options = {}) {
     }
 
     function handleKeyDown(event) {
+      if (event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey) return;
+      if (document.querySelector('dialog[open], [aria-modal="true"]')) return;
       /*
         -------------------------------
         ESCAPE

@@ -1,5 +1,6 @@
+import { storage } from "../services/storage.js";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { useAccessibility } from "../context/AccessibilityContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
@@ -8,6 +9,9 @@ import "../styles/themes.css";
 
 export default function Setup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editing = searchParams.get("edit") === "1";
+  const headingRef = useRef(null);
 
   const {
     preferences,
@@ -22,12 +26,17 @@ export default function Setup() {
     t,
   } = useLanguage();
 
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(editing);
   const startButtonRef = useRef(null);
 
   useEffect(() => {
     startButtonRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    document.title = "Accessibility setup | Udaan";
+    if (started) headingRef.current?.focus();
+  }, [started]);
 
   function handleStart() {
     setStarted(true);
@@ -36,9 +45,9 @@ export default function Setup() {
   function handleSubmit(event) {
     event.preventDefault();
 
-    localStorage.setItem("udaan-setup-complete", "true");
+    try { storage.setItem("udaan-setup-complete", "true"); } catch { /* Preferences remain usable for this visit. */ }
 
-    navigate("/login");
+    navigate(editing ? "/dashboard" : "/login");
   }
 
   if (!started) {
@@ -48,6 +57,8 @@ export default function Setup() {
           <p className="brand">Udaan</p>
 
           <h1>{t("setup.welcome")}</h1>
+          <p className="welcome-promise">Your ambition. Your pace.<br />Your way to learn.</p>
+          <p>Independent exam preparation with readable questions, keyboard controls and optional voice support.</p>
 
           <p className="setup-description">
             {t("setup.instructions")}
@@ -72,7 +83,7 @@ export default function Setup() {
         <header className="setup-header">
           <p className="brand">Udaan</p>
 
-          <h1>{t("setup.title")}</h1>
+          <h1 ref={headingRef} tabIndex={-1}>{t("setup.title")}</h1>
 
           <p className="setup-description">
             {t("setup.instructions")}

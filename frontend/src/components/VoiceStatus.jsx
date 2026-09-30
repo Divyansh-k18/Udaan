@@ -66,7 +66,7 @@ function VoiceStatus({ onCommand }) {
 
       if (command) {
         setStatus(
-          `Command recognised: ${command.id
+          `Command recognised: ${(command.command || command.id)
             .replaceAll("_", " ")
             .toLowerCase()}`
         );

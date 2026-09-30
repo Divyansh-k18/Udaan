@@ -79,6 +79,15 @@ function HelpDialog() {
     setOpen(false);
   }
 
+  useEffect(() => {
+    const listener = () => openDialog();
+    window.addEventListener("udaan:open-help", listener);
+    return () => window.removeEventListener("udaan:open-help", listener);
+  }, []);
+  useEffect(() => {
+    if (open) dialogRef.current?.showModal();
+  }, [open]);
+
   /*
     Alt+H opens Help.
 
@@ -236,8 +245,9 @@ function HelpDialog() {
             }
           }}
         >
-          <div
+          <dialog
             ref={dialogRef}
+            onCancel={(event) => { event.preventDefault(); closeDialog(); }}
             className="help-dialog"
             role="dialog"
             aria-modal="true"
@@ -327,7 +337,7 @@ function HelpDialog() {
               Press <kbd>Escape</kbd> at any time to
               close this Help dialog.
             </p>
-          </div>
+          </dialog>
         </div>
       )}
     </>

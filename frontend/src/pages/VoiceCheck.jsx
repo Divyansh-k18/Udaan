@@ -149,7 +149,7 @@ function VoiceCheck() {
     voiceMode === "screen-reader";
 
   return (
-    <main
+    <section
       style={{
         maxWidth: "900px",
         margin: "0 auto",
@@ -271,7 +271,7 @@ function VoiceCheck() {
       >
         {statusMessage}
       </p>
-    </main>
+    </section>
   );
 }
 

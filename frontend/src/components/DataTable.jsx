@@ -90,8 +90,7 @@ function getRowCell(row, column, columnIndex) {
 export function buildRowSpeech(
   row,
   columns,
-  rowNumber,
-  fallbackLang
+  rowNumber
 ) {
   const values = columns.map((column, columnIndex) => {
     const cell = getRowCell(row, column, columnIndex);

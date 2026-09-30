@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { storage } from "../services/storage.js";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import "../styles/themes.css";
@@ -7,9 +8,14 @@ function Login() {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
+  useEffect(() => {
+    document.title = "Demo sign in | Udaan";
+    document.getElementById("login-heading")?.focus();
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [errorField, setErrorField] = useState("");
 
   // Use t(), but keep an English fallback for keys that
   // have not been added to every language file yet.
@@ -43,6 +49,8 @@ function Login() {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailPattern.test(cleanEmail)) {
+      setErrorField("email");
+      document.getElementById("email")?.focus();
       setError(
         text(
           "login.invalidEmail",
@@ -53,6 +61,8 @@ function Login() {
     }
 
     if (password.length < 4) {
+      setErrorField("password");
+      document.getElementById("password")?.focus();
       setError(
         text(
           "login.passwordTooShort",
@@ -71,14 +81,14 @@ function Login() {
       This must later be replaced with real FastAPI backend
       authentication.
 
-      Never store the password in localStorage.
+      Never store the password in storage.
     */
 
-    localStorage.setItem("udaan-demo-user", cleanEmail);
+    try { storage.setItem("udaan-demo-user", cleanEmail); } catch { /* Demo can continue without storage. */ }
 
     // IMPORTANT ACCESSIBILITY RULE:
     // Never send the password to speechSynthesis,
-    // voice commands, announcements, logs, or localStorage.
+    // voice commands, announcements, logs, or storage.
 
     navigate("/dashboard");
 
@@ -112,8 +122,11 @@ function Login() {
             </p>
           </header>
 
+          <p className="demo-notice">Demo access only. Use a made-up email and password, or continue as a guest. No account is created.</p>
+          <button type="button" className="secondary-button guest-button" onClick={() => navigate("/dashboard")}>Continue as guest</button>
           {error && (
             <div
+              id="login-error"
               role="alert"
               aria-live="assertive"
               style={{
@@ -138,6 +151,7 @@ function Login() {
 
               <input
                 id="email"
+                aria-invalid={Boolean(error && errorField === "email")}
                 name="email"
                 type="email"
                 className="setup-select"
@@ -151,6 +165,7 @@ function Login() {
                 }}
                 autoComplete="email"
                 inputMode="email"
+                aria-describedby={error ? "login-error" : undefined}
                 required
                 aria-required="true"
                 style={{
@@ -170,6 +185,7 @@ function Login() {
 
               <input
                 id="password"
+                aria-invalid={Boolean(error && errorField === "password")}
                 name="password"
                 type="password"
                 className="setup-select"
@@ -184,7 +200,7 @@ function Login() {
                 autoComplete="current-password"
                 required
                 aria-required="true"
-                aria-describedby="password-help"
+                aria-describedby={error ? "password-help login-error" : "password-help"}
                 style={{
                   width: "100%",
                   marginTop: "0.5rem",

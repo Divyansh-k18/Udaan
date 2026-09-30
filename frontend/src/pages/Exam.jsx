@@ -1,3 +1,6 @@
+import ExamDialog from "../components/ExamDialog";
+import { storage } from "../services/storage.js";
+import { isValidSavedSession, roundMarks, normalisePercent, adjustedSeconds, getFlatQuestions, calculateResult, getSectionRemainingAfterRefresh } from "../services/examLogic.js";
 import {
   useEffect,
   useMemo,
@@ -48,292 +51,6 @@ const OPTION_LETTERS = [
 
 function getSessionKey(examId, language) {
   return `udaan_mock_session_v1:${examId}:${language}`;
-}
-
-function normalisePercent(value) {
-  const number = Number(value);
-
-  if (!Number.isFinite(number)) {
-    return 0;
-  }
-
-  return Math.max(0, number);
-}
-
-function adjustedSeconds(minutes, extraPercent = 0) {
-  const seconds =
-    Number(minutes || 0) *
-    60 *
-    (1 + extraPercent / 100);
-
-  return Math.max(
-    0,
-    Math.round(seconds)
-  );
-}
-
-function getFlatQuestions(paper) {
-  if (!paper?.sections) {
-    return [];
-  }
-
-  let globalIndex = 0;
-
-  return paper.sections.flatMap(
-    (section, sectionIndex) =>
-      section.questions.map(
-        (question, questionIndex) => {
-          const entry = {
-            question,
-            section,
-            sectionIndex,
-            questionIndex,
-            globalIndex,
-          };
-
-          globalIndex += 1;
-
-          return entry;
-        }
-      )
-  );
-}
-
-function roundMarks(value) {
-  return Number(
-    Number(value || 0).toFixed(2)
-  );
-}
-
-function calculateResult(
-  paper,
-  answers
-) {
-  const sectionResults =
-    paper.sections.map((section) => {
-      let correct = 0;
-      let wrong = 0;
-      let unanswered = 0;
-      let score = 0;
-      let negativeLost = 0;
-
-      section.questions.forEach(
-        (question) => {
-          const answer =
-            answers[question.id];
-
-          if (!Number.isInteger(answer)) {
-            unanswered += 1;
-            return;
-          }
-
-          if (answer === question.answer) {
-            correct += 1;
-            score +=
-              Number(
-                section.marksPerQuestion || 0
-              );
-          } else {
-            wrong += 1;
-
-            const negative =
-              Number(
-                section.negativeMarks || 0
-              );
-
-            score -= negative;
-            negativeLost += negative;
-          }
-        }
-      );
-
-      const totalQuestions =
-        section.questions.length;
-
-      const attempted =
-        correct + wrong;
-
-      const maxMarks =
-        totalQuestions *
-        Number(
-          section.marksPerQuestion || 0
-        );
-
-      const accuracy =
-        attempted > 0
-          ? (correct / attempted) * 100
-          : 0;
-
-      return {
-        name: section.name,
-        subject: section.subject,
-        correct,
-        wrong,
-        unanswered,
-        attempted,
-        totalQuestions,
-        score: roundMarks(score),
-        maxMarks: roundMarks(maxMarks),
-        negativeLost:
-          roundMarks(negativeLost),
-        accuracy:
-          roundMarks(accuracy),
-      };
-    });
-
-  const totals =
-    sectionResults.reduce(
-      (result, section) => ({
-        correct:
-          result.correct +
-          section.correct,
-
-        wrong:
-          result.wrong +
-          section.wrong,
-
-        unanswered:
-          result.unanswered +
-          section.unanswered,
-
-        attempted:
-          result.attempted +
-          section.attempted,
-
-        score:
-          result.score +
-          section.score,
-
-        maxMarks:
-          result.maxMarks +
-          section.maxMarks,
-
-        negativeLost:
-          result.negativeLost +
-          section.negativeLost,
-      }),
-      {
-        correct: 0,
-        wrong: 0,
-        unanswered: 0,
-        attempted: 0,
-        score: 0,
-        maxMarks: 0,
-        negativeLost: 0,
-      }
-    );
-
-  const accuracy =
-    totals.attempted > 0
-      ? (
-          totals.correct /
-          totals.attempted
-        ) * 100
-      : 0;
-
-  return {
-    examId: paper.examId,
-    examName: paper.examName,
-
-    totalQuestions:
-      totals.correct +
-      totals.wrong +
-      totals.unanswered,
-
-    correct: totals.correct,
-    wrong: totals.wrong,
-    unanswered: totals.unanswered,
-    attempted: totals.attempted,
-
-    score: roundMarks(
-      totals.score
-    ),
-
-    maxMarks: roundMarks(
-      totals.maxMarks
-    ),
-
-    negativeLost:
-      roundMarks(
-        totals.negativeLost
-      ),
-
-    accuracy:
-      roundMarks(accuracy),
-
-    sections: sectionResults,
-  };
-}
-
-function getSectionRemainingAfterRefresh(
-  saved,
-  paper,
-  extraPercent,
-  elapsedSeconds
-) {
-  const lastIndex =
-    paper.sections.length - 1;
-
-  let sectionIndex =
-    Math.min(
-      Math.max(
-        Number(
-          saved.currentSectionIndex || 0
-        ),
-        0
-      ),
-      lastIndex
-    );
-
-  let remaining =
-    typeof saved.remainingSectionSeconds ===
-    "number"
-      ? saved.remainingSectionSeconds
-      : adjustedSeconds(
-          paper.sections[sectionIndex]
-            ?.minutes,
-          extraPercent
-        );
-
-  let elapsed =
-    Math.max(
-      0,
-      elapsedSeconds
-    );
-
-  while (
-    elapsed > 0 &&
-    remaining > 0
-  ) {
-    if (elapsed < remaining) {
-      remaining -= elapsed;
-      elapsed = 0;
-      break;
-    }
-
-    elapsed -= remaining;
-
-    if (sectionIndex >= lastIndex) {
-      remaining = 0;
-      elapsed = 0;
-      break;
-    }
-
-    sectionIndex += 1;
-
-    remaining =
-      adjustedSeconds(
-        paper.sections[sectionIndex]
-          .minutes,
-        extraPercent
-      );
-  }
-
-  return {
-    sectionIndex,
-    remaining:
-      Math.max(0, remaining),
-  };
 }
 
 function optionValueToIndex(value) {
@@ -387,6 +104,7 @@ function Exam() {
   const { preferences } =
     useAccessibility();
 
+  const initialExtraTime = useRef(preferences?.extraTimePercent);
   const sessionKey =
     useMemo(
       () =>
@@ -749,7 +467,7 @@ function Exam() {
       currentEntry.question.id;
 
     const nextValue =
-      !Boolean(marked[id]);
+      !marked[id];
 
     setMarked((previous) => ({
       ...previous,
@@ -1095,18 +813,31 @@ function Exam() {
     result.autoSubmitted =
       autoSubmitted;
 
+    result.id = crypto.randomUUID();
+    result.questions = flatQuestions.map(({ question, section }) => {
+      const chosen = answers[question.id];
+      const attempted = Number.isInteger(chosen);
+      return {
+        id: question.id, subject: question.subject || section.subject,
+        section: section.name, topic: question.topic,
+        chosen: attempted ? OPTION_LETTERS[chosen] : "",
+        correct: attempted && chosen === question.answer, attempted,
+        marks: section.marksPerQuestion, negative: section.negativeMarks,
+        seconds: null,
+      };
+    });
     result.submittedAt =
       new Date().toISOString();
 
     result.warning =
       paper.warning || null;
 
-    localStorage.setItem(
+    storage.setItem(
       LAST_RESULT_KEY,
       JSON.stringify(result)
     );
 
-    localStorage.removeItem(
+    storage.removeItem(
       sessionKey
     );
 
@@ -1423,6 +1154,14 @@ function Exam() {
       closePanels,
   };
 
+  const voiceHandlerRef = useRef(handleVoiceCommand);
+  useEffect(() => { voiceHandlerRef.current = handleVoiceCommand; });
+  useEffect(() => {
+    const listener = (event) => voiceHandlerRef.current(event.detail);
+    window.addEventListener("udaan:voice-command", listener);
+    return () => { window.removeEventListener("udaan:voice-command", listener); stopSpeaking(); };
+  }, []);
+
   useShortcuts({
     next:
       handlers.next,
@@ -1471,7 +1210,7 @@ function Exam() {
 
     escape:
       handlers.escape,
-  });
+  }, { enabled: !showSubmitConfirm && !showGoTo });
 
   /*
     Load a saved mock test, or create
@@ -1482,7 +1221,7 @@ function Exam() {
 
     try {
       const raw =
-        localStorage.getItem(
+        storage.getItem(
           sessionKey
         );
 
@@ -1490,22 +1229,18 @@ function Exam() {
         saved = JSON.parse(raw);
       }
     } catch {
-      localStorage.removeItem(
+      storage.removeItem(
         sessionKey
       );
     }
 
     const preferenceExtraTime =
       normalisePercent(
-        preferences?.extraTimePercent
+        initialExtraTime.current
       );
 
     if (
-      saved &&
-      saved.version ===
-        SESSION_VERSION &&
-      saved.examId === examId &&
-      saved.paper
+      isValidSavedSession(saved, examId)
     ) {
       const restoredPaper =
         saved.paper;
@@ -1732,7 +1467,7 @@ function Exam() {
         Date.now(),
     };
 
-    localStorage.setItem(
+    storage.setItem(
       sessionKey,
       JSON.stringify(session)
     );
@@ -1751,144 +1486,48 @@ function Exam() {
     sessionKey,
   ]);
 
-  /*
-    Timer tick.
-
-    IMPORTANT:
-    Nothing is spoken every second.
-  */
+  // Use elapsed wall time: browser throttling must not grant extra exam time.
+  const timerStateRef = useRef(null);
   useEffect(() => {
-    if (
-      phase !== "exam" ||
-      !paper
-    ) {
-      return undefined;
-    }
-
-    const interval =
-      window.setInterval(() => {
-        if (
-          paper.sectionalTiming
-        ) {
-          setRemainingSectionSeconds(
-            (previous) => {
-              if (
-                previous <= 0
-              ) {
-                return 0;
-              }
-
-              const next =
-                Math.max(
-                  0,
-                  previous - 1
-                );
-
-              const thresholds = [
-                600,
-                300,
-                60,
-              ];
-
-              thresholds.forEach(
-                (threshold) => {
-                  if (
-                    previous >=
-                      threshold &&
-                    next <
-                      threshold
-                  ) {
-                    const key =
-                      `section-${currentSectionIndex}-${threshold}`;
-
-                    if (
-                      !announcedThresholds.current.has(
-                        key
-                      )
-                    ) {
-                      announcedThresholds.current.add(
-                        key
-                      );
-
-                      announce(
-                        `${currentSection?.name || "Current section"}: ${formatSpokenTime(
-                          threshold
-                        )} remaining.`
-                      );
-                    }
-                  }
-                }
-              );
-
-              return next;
-            }
-          );
-        } else {
-          setRemainingSeconds(
-            (previous) => {
-              if (
-                previous <= 0
-              ) {
-                return 0;
-              }
-
-              const next =
-                Math.max(
-                  0,
-                  previous - 1
-                );
-
-              const thresholds = [
-                600,
-                300,
-                60,
-              ];
-
-              thresholds.forEach(
-                (threshold) => {
-                  if (
-                    previous >=
-                      threshold &&
-                    next <
-                      threshold
-                  ) {
-                    const key =
-                      `exam-${threshold}`;
-
-                    if (
-                      !announcedThresholds.current.has(
-                        key
-                      )
-                    ) {
-                      announcedThresholds.current.add(
-                        key
-                      );
-
-                      announce(
-                        `${formatSpokenTime(
-                          threshold
-                        )} remaining.`
-                      );
-                    }
-                  }
-                }
-              );
-
-              return next;
-            }
-          );
+    timerStateRef.current = { remainingSeconds, remainingSectionSeconds, currentSectionIndex, announce };
+  });
+  useEffect(() => {
+    if (phase !== "exam" || !paper) return;
+    let lastTick = Date.now();
+    const interval = window.setInterval(() => {
+      const now = Date.now();
+      const elapsed = Math.floor((now - lastTick) / 1000);
+      if (elapsed < 1) return;
+      lastTick += elapsed * 1000;
+      const current = timerStateRef.current;
+      const previous = paper.sectionalTiming ? current.remainingSectionSeconds : current.remainingSeconds;
+      let next = Math.max(0, previous - elapsed);
+      if (paper.sectionalTiming) {
+        const restored = getSectionRemainingAfterRefresh(current, paper, examExtraTimePercent, elapsed);
+        next = restored.remaining;
+        setRemainingSectionSeconds(next);
+        if (restored.sectionIndex !== current.currentSectionIndex) {
+          setCurrentSectionIndex(restored.sectionIndex);
+          setCurrentQuestionId(paper.sections[restored.sectionIndex]?.questions[0]?.id || null);
+          current.announce(`Section time ended. Moving to ${paper.sections[restored.sectionIndex].name}.`);
         }
-      }, 1000);
+      } else {
+        setRemainingSeconds(next);
+      }
+      for (const threshold of [600, 300, 60]) {
+        const key = `${current.currentSectionIndex}-${threshold}`;
+        if (previous > threshold && next <= threshold && !announcedThresholds.current.has(key)) {
+          announcedThresholds.current.add(key);
+          current.announce(`${formatSpokenTime(next)} remaining.`);
+          break;
+        }
+      }
+    }, 250);
+    return () => window.clearInterval(interval);
+  }, [phase, paper, examExtraTimePercent]);
 
-    return () =>
-      window.clearInterval(
-        interval
-      );
-  }, [
-    phase,
-    paper,
-    currentSectionIndex,
-  ]);
+  const expiryActions = useRef(null);
+  useEffect(() => { expiryActions.current = { finalizeExam, announce }; });
 
   /*
     Overall timer expiry.
@@ -1907,7 +1546,7 @@ function Exam() {
     handledExamExpiry.current =
       true;
 
-    finalizeExam(true);
+    expiryActions.current.finalizeExam(true);
   }, [
     remainingSeconds,
     phase,
@@ -1965,7 +1604,7 @@ function Exam() {
         )
       );
 
-      announce(
+      expiryActions.current.announce(
         `${currentSection?.name || "Section"} time is over. ` +
           `Moving to ${nextSection.name}.`
       );
@@ -1973,28 +1612,43 @@ function Exam() {
       return;
     }
 
-    finalizeExam(true);
+    expiryActions.current.finalizeExam(true);
   }, [
     remainingSectionSeconds,
     phase,
     paper,
     currentSectionIndex,
     examExtraTimePercent,
+    currentSection?.name,
   ]);
+
+  const questionSpeech = currentEntry ? `${currentEntry.question.spoken || currentEntry.question.text}. ${currentEntry.question.options.map((option, index) => `Option ${OPTION_LETTERS[index]}: ${option}`).join('. ')}` : "";
+  useEffect(() => {
+    if (phase !== "exam" || !udaanSpeaks || !questionSpeech) return;
+    const timer = setTimeout(() => speak(questionSpeech, language, speechRate), 100);
+    return () => { clearTimeout(timer); stopSpeaking(); };
+  }, [phase, currentQuestionId, questionSpeech, udaanSpeaks, language, speechRate]);
+
+  useEffect(() => {
+    if (phase !== "exam") return;
+    const heading = document.querySelector(".question-header h2");
+    heading?.setAttribute("tabindex", "-1");
+    heading?.focus();
+  }, [currentQuestionId, phase]);
 
   if (phase === "loading") {
     return (
-      <main className="mock-page">
+      <section className="mock-page">
         <h1>
           Loading mock test…
         </h1>
-      </main>
+      </section>
     );
   }
 
   if (!paper) {
     return (
-      <main className="mock-page">
+      <section className="mock-page">
         <h1>
           Mock test unavailable
         </h1>
@@ -2012,13 +1666,13 @@ function Exam() {
         >
           Back to Exams
         </button>
-      </main>
+      </section>
     );
   }
 
   if (phase === "instructions") {
     return (
-      <main className="mock-page">
+      <section className="mock-page">
         <section className="mock-card">
           <p className="mock-eyebrow">
             Mock Test Instructions
@@ -2246,12 +1900,12 @@ function Exam() {
         >
           {liveMessage.text}
         </div>
-      </main>
+      </section>
     );
   }
 
   return (
-    <main className="mock-page">
+    <section className="mock-page">
       <div
         className="sr-only"
         aria-live="polite"
@@ -2354,15 +2008,14 @@ function Exam() {
         sectionName={
           currentSection?.name
         }
-        selectedAnswer={
-          currentAnswer
-        }
+        selectedAnswer={Number.isInteger(currentAnswer) ? OPTION_LETTERS[currentAnswer] : ""}
+        langCode={language}
+        speechRate={speechRate}
+        allowSpeech={udaanSpeaks}
         marked={
           isCurrentMarked
         }
-        onSelect={
-          handlers.selectOption
-        }
+        onSelectAnswer={(id) => handlers.selectOption(OPTION_LETTERS.indexOf(id))}
       />
 
       <div className="mock-navigation">
@@ -2464,8 +2117,9 @@ function Exam() {
       </p>
 
       {showGoTo && (
-        <section
+        <ExamDialog
           className="mock-dialog"
+          onClose={() => setShowGoTo(false)}
           role="dialog"
           aria-labelledby="go-to-title"
         >
@@ -2533,12 +2187,13 @@ function Exam() {
               </button>
             </div>
           </form>
-        </section>
+        </ExamDialog>
       )}
 
       {showSubmitConfirm && (
-        <section
+        <ExamDialog
           className="mock-dialog mock-submit-confirm"
+          onClose={handlers.cancelSubmit}
           role="dialog"
           aria-labelledby="submit-confirm-title"
           aria-describedby="submit-confirm-description"
@@ -2587,9 +2242,9 @@ function Exam() {
               No, Continue Test
             </button>
           </div>
-        </section>
+        </ExamDialog>
       )}
-    </main>
+    </section>
   );
 }
 

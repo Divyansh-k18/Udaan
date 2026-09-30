@@ -1,7 +1,9 @@
+import { storage } from "../services/storage.js";
 import {
   createContext,
   useContext,
   useEffect,
+  useCallback,
   useMemo,
   useState,
 } from "react";
@@ -89,7 +91,7 @@ function replacePlaceholders(text, values = {}) {
 
 function getInitialLanguage() {
   try {
-    const savedLanguage = localStorage.getItem(STORAGE_KEY);
+    const savedLanguage = storage.getItem(STORAGE_KEY);
 
     const isSupported = LANGUAGES.some(
       (language) => language.code === savedLanguage
@@ -112,7 +114,7 @@ export function LanguageProvider({ children }) {
     document.documentElement.lang = language;
 
     try {
-      localStorage.setItem(STORAGE_KEY, language);
+      storage.setItem(STORAGE_KEY, language);
     } catch (error) {
       console.warn("Could not save language to localStorage:", error);
     }
@@ -131,7 +133,7 @@ export function LanguageProvider({ children }) {
     setLanguageState(newLanguage);
   }
 
-  function t(key, values = {}) {
+  const t = useCallback((key, values = {}) => {
     const selectedTranslations = translations[language] || en;
 
     let translatedText = getNestedValue(selectedTranslations, key);
@@ -157,7 +159,7 @@ export function LanguageProvider({ children }) {
     }
 
     return replacePlaceholders(translatedText, values);
-  }
+  }, [language]);
 
   const value = useMemo(
     () => ({
@@ -166,7 +168,7 @@ export function LanguageProvider({ children }) {
       languages: LANGUAGES,
       t,
     }),
-    [language]
+    [language, t]
   );
 
   return (

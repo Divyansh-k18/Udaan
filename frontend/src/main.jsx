@@ -9,6 +9,7 @@ import { AccessibilityProvider } from "./context/AccessibilityContext.jsx";
 import { LanguageProvider } from "./context/LanguageContext.jsx";
 
 import "./index.css";
+import "./styles/accessibility.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

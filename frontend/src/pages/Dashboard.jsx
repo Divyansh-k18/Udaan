@@ -62,12 +62,12 @@ function Dashboard() {
           return;
         }
 
-        if (data?.status === "ok") {
+        if (data?.status === "ok" || data?.ok === true) {
           setBackendStatus("online");
         } else {
           setBackendStatus("offline");
         }
-      } catch (error) {
+      } catch {
         if (mounted) {
           setBackendStatus("offline");
         }
@@ -115,8 +115,9 @@ function Dashboard() {
   }
 
   return (
-    <main className="page-container">
-      <header>
+    <section className="page-container">
+      <header className="dashboard-hero">
+        <p className="eyebrow">YOUR LEARNING SPACE</p>
         <h1 ref={headingRef} tabIndex="-1">
           {text("dashboard.title", "Udaan Dashboard")}
         </h1>
@@ -149,6 +150,15 @@ function Dashboard() {
         </p>
       </header>
 
+      <section className="journey-card" aria-labelledby="journey-title">
+        <div><p className="eyebrow">LEARN AT YOUR PACE</p>
+          <h2 id="journey-title">Your next step starts here.</h2>
+          <p>Practise with explanations, build confidence in a timed mock, and see where to improve.</p>
+          <button className="primary-button" onClick={() => navigate("/exams")}>Start practising <span aria-hidden="true">→</span></button>
+        </div>
+        <ol className="journey-steps"><li><strong>01 · Prepare</strong><span>Learn one question at a time</span></li><li><strong>02 · Try a mock</strong><span>Practise with exam-style timing</span></li><li><strong>03 · Reflect</strong><span>Review your score and topics</span></li></ol>
+      </section>
+      <h2>Explore Udaan</h2>
       <nav
         className="dashboard-actions"
         aria-label={text(
@@ -161,7 +171,7 @@ function Dashboard() {
           className="large-button"
           onClick={() => navigateWithFocus("/exams")}
         >
-          {text("dashboard.exams", "Exams")}
+          {text("dashboard.exams", "Exams")}<span className="card-detail">Choose a practice or mock test</span>
         </button>
 
         <button
@@ -169,15 +179,15 @@ function Dashboard() {
           className="large-button"
           onClick={() => navigateWithFocus("/progress")}
         >
-          {text("dashboard.progress", "Progress")}
+          {text("dashboard.progress", "Progress")}<span className="card-detail">Review scores and learning trends</span>
         </button>
 
         <button
           type="button"
           className="large-button"
-          onClick={() => navigateWithFocus("/setup")}
+          onClick={() => navigateWithFocus("/setup?edit=1")}
         >
-          {text("dashboard.settings", "Settings")}
+          {text("dashboard.settings", "Settings")}<span className="card-detail">Adjust reading, voice and extra time</span>
         </button>
 
         <button
@@ -188,7 +198,7 @@ function Dashboard() {
           aria-expanded={showHelp}
           aria-controls="dashboard-help"
         >
-          {text("dashboard.help", "Help")}
+          {text("dashboard.help", "Help")}<span className="card-detail">Find keyboard and voice controls</span>
         </button>
       </nav>
 
@@ -218,7 +228,7 @@ function Dashboard() {
           </button>
         </section>
       )}
-    </main>
+    </section>
   );
 }
 

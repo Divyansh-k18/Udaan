@@ -10,7 +10,7 @@ function PageShell({ title, children }) {
   }, []);
 
   return (
-    <main>
+    <section>
       <h1 ref={headingRef} tabIndex="-1">
         {title}
       </h1>
@@ -26,7 +26,7 @@ function PageShell({ title, children }) {
 
         <Link to="/dashboard">Home</Link>
       </nav>
-    </main>
+    </section>
   );
 }
 

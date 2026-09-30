@@ -1,9 +1,10 @@
+import { storage } from "./storage.js";
 const STATS_KEY = "udaan_practice_stats_v1";
 const BOOKMARKS_KEY = "udaan_practice_bookmarks_v1";
 
 function readJson(key, fallback) {
   try {
-    const saved = localStorage.getItem(key);
+    const saved = storage.getItem(key);
 
     if (!saved) {
       return fallback;
@@ -17,7 +18,7 @@ function readJson(key, fallback) {
 
 function writeJson(key, value) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    storage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.error("Could not save practice data:", error);
   }

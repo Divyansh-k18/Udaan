@@ -90,6 +90,7 @@ async function request(path, options = {}) {
   try {
     const response = await fetch(url, {
       ...options,
+      signal: options.signal || AbortSignal.timeout(10000),
 
       headers: {
         Accept: "application/json",
@@ -104,12 +105,18 @@ async function request(path, options = {}) {
       throw new Error(getFriendlyError(response.status, data));
     }
 
+    if (typeof data === "string") {
+      throw new Error("The API returned a web page instead of data. Check the API URL or start the backend.");
+    }
     return data;
   } catch (error) {
     /*
       An Error created above already contains a friendly
       server message, so keep it.
     */
+    if (error?.name === "TimeoutError") {
+      throw new Error("The server took too long to respond. Please try again.");
+    }
     if (error instanceof Error && error.message) {
       /*
         Browser fetch normally produces "Failed to fetch"

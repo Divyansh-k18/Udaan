@@ -1,0 +1,117 @@
+/* Shared visual tokens. Text/control pairs are checked in accessibility.test.js. */
+:root {
+  --page: #f2f6f5; --surface: #ffffff; --surface-soft: #e7f0ed;
+  --ink: #172d29; --muted: #405b55; --line: #687f78;
+  --accent: #155c49; --on-accent: #ffffff; --focus: #9c3600;
+  --text-scale: 1;
+}
+html[data-theme="dark"] {
+  --page: #111d1b; --surface: #1b2b27; --surface-soft: #263e36;
+  --ink: #f1f8f4; --muted: #c0d5ca; --line: #94aea1;
+  --accent: #a9e4c4; --on-accent: #10271d; --focus: #ffce83;
+}
+html[data-theme="high-contrast"] {
+  --page: #000; --surface: #000; --surface-soft: #000;
+  --ink: #fff; --muted: #fff; --line: #fff;
+  --accent: #ffff00; --on-accent: #000; --focus: #00ffff;
+}
+html { font-size: calc(100% * var(--text-scale)); min-width: 0; }
+html body, html[data-theme] body { background: var(--page); color: var(--ink); overflow-x: visible; line-height: 1.65; }
+body { font-family: "Segoe UI", system-ui, sans-serif; }
+h1,h2,h3 { line-height: 1.25; letter-spacing: -.02em; overflow-wrap: anywhere; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.8rem); margin: .4em 0; }
+h2 { font-size: 1.5rem; }
+p { max-width: 75ch; }
+a { color: var(--accent); text-underline-offset: .2em; }
+button, input, select, textarea, summary { font: inherit; }
+button, select, textarea, input:not([type="radio"]):not([type="checkbox"]):not([type="range"]) {
+  min-height: 48px; max-width: 100%; padding: .65rem 1rem;
+  border: 2px solid var(--line); border-radius: .65rem; background: var(--surface); color: var(--ink);
+}
+button { cursor: pointer; font-weight: 650; white-space: normal; overflow-wrap: anywhere; }
+button:hover:not(:disabled) { text-decoration: underline; text-underline-offset: .22em; }
+button:disabled { cursor: not-allowed; }
+input { accent-color: var(--accent); }
+input[type="radio"], input[type="checkbox"] { min-width: 22px; min-height: 22px; }
+html :is(a,button,input,select,textarea,summary,[tabindex]):focus-visible,
+html .option-card:focus-within, html .question-option:focus-within {
+  outline: 3px solid var(--focus); outline-offset: 4px; box-shadow: 0 0 0 2px var(--surface);
+}
+fieldset, section, article, nav, form, .setup-container { min-width: 0; }
+html .app-header { background: var(--surface); border-bottom: 1px solid var(--line); padding: 1.1rem max(1.2rem, calc((100vw - 1200px) / 2)); }
+.app-brand { display: flex; align-items: center; gap: .5rem; letter-spacing: -.04em; }
+.brand-symbol { display: inline-grid; place-items: center; width: 2.4rem; height: 2.4rem; background: var(--accent); color: var(--on-accent); border-radius: .65rem; }
+.app-tagline, .voice-live-status { color: var(--muted); }
+.navigation-bar { display:flex; justify-content:space-between; gap:1rem; align-items:center; flex-wrap:wrap; max-width:1200px; margin:auto; padding: .7rem 1.5rem; }
+.navigation-bar nav { display:flex; gap:.4rem; flex-wrap:wrap; }
+.navigation-bar a { display:inline-flex; min-height:48px; align-items:center; padding:.5rem .9rem; border-radius:.5rem; text-decoration:none; font-weight:650; }
+.navigation-bar a.active { background:var(--accent); color:var(--on-accent); text-decoration:underline; }
+.demo-label, .eyebrow { color:var(--muted); font-size:.85rem; font-weight:750; letter-spacing:.09em; }
+.reading-bar { max-width:1200px; margin:auto; padding: 0 1.5rem; }
+.accessibility-toolbar { background:var(--surface); border:1px solid var(--line); border-radius:.7rem; }
+.accessibility-toolbar summary { padding:.7rem 1rem; min-height:48px; cursor:pointer; font-weight:650; color:var(--accent); }
+.accessibility-controls { padding:1rem; display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(min(100%, 12rem),1fr)); align-items:end; border-top:1px solid var(--line); }
+.accessibility-controls label { display:block; font-weight:650; margin-bottom:.5rem; }
+.accessibility-controls select { width:100%; }
+html .app-main { padding:1.8rem 1.5rem 3rem; }
+.page-container { max-width:1100px; margin:auto; }
+.dashboard-hero { margin-bottom:1.5rem; }
+.dashboard-hero h1 { margin-top:.3rem; }
+.backend-status { display:inline-block; font-size:.9rem; border:1px solid var(--line); border-radius:2rem; padding:.25rem .8rem; margin:.2rem 0; }
+.journey-card { display:grid; grid-template-columns:1.3fr 1fr; gap:2rem; padding:clamp(1.2rem,3vw,2.5rem); background:var(--surface-soft); border:1px solid var(--line); border-radius:1.1rem; margin:1rem 0 2rem; }
+.journey-card h2 { font-size:clamp(1.7rem,3vw,2.4rem); max-width:17ch; }
+.journey-steps { padding:0; margin:0; list-style:none; display:grid; align-content:center; gap:.9rem; }
+.journey-steps li { padding:.65rem 0 .65rem 1rem; border-left:3px solid var(--accent); }
+.journey-steps span { display:block; color:var(--muted); }
+.dashboard-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.dashboard-actions .large-button { text-align:left; padding:1.3rem; font-size:1.15rem; border:1px solid var(--line); box-shadow:0 3px 0 var(--surface-soft); }
+.card-detail { display:block; margin-top:.4rem; font-size:.95rem; font-weight:400; color:var(--muted); }
+html .primary-button, html .mock-primary, html .mock-submit, html .prepare-primary {
+  background:var(--accent); color:var(--on-accent); border:2px solid var(--accent);
+}
+html[data-theme] :is(.setup-card,.start-card,.setup-section,.option-card,.setup-select),
+html :is(.setup-card,.start-card,.mock-card,.mock-question-card,.help-dialog) { background:var(--surface); color:var(--ink); border-color:var(--line); }
+html .setup-section { background:var(--surface-soft); border:1px solid var(--line); }
+html .option-card { background:var(--surface); border:2px solid var(--line); }
+html .option-card:has(input:checked), html .question-option.option-selected { border-color:var(--accent); background:var(--surface-soft); box-shadow:inset 4px 0 var(--accent); }
+html .brand { color:var(--accent); }
+html .setup-description { color:var(--muted); opacity:1; }
+.setup-container { width:min(850px,100%); }
+.setup-container .setup-card { width:100%; }
+.app-main .setup-page { min-height:0; padding:0; }
+.welcome-promise { font-size:clamp(1.8rem,4vw,2.7rem); font-weight:750; letter-spacing:-.035em; line-height:1.25; color:var(--accent); }
+.start-card p { margin-inline:auto; }
+.guest-button { width:100%; margin-bottom:1.5rem; }
+.demo-notice, .mock-warning { padding:1rem; border-left:4px solid var(--accent); background:var(--surface-soft); }
+.app-footer { padding:1.5rem; border-top:1px solid var(--line); color:var(--muted); text-align:center; }
+.app-footer a { margin-left:1rem; display:inline-block; padding:.5rem; }
+html .help-backdrop { background:transparent; padding:0; }
+dialog.help-dialog { margin:auto; max-width:calc(100% - 2rem); max-height:85dvh; }
+dialog::backdrop { background:rgb(0 0 0 / .7); }
+html .help-dialog, html .mock-dialog { background:var(--surface); color:var(--ink); }
+.accessible-question > section { margin-block:1.5rem; }
+.accessible-question dl { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr)); gap:1rem; }
+.accessible-question dl > div { padding:1rem; border:1px solid var(--line); border-radius:.65rem; background:var(--surface); }
+.accessible-question dt { color:var(--muted); }
+.accessible-question dd { margin:.4rem 0 0; font-size:1.35rem; font-weight:750; }
+.accessible-data-table th { background:var(--surface-soft); }
+html .question-option, html .mock-section-button { border-color:var(--line); }
+.mock-timer { background:var(--surface-soft); font-variant-numeric:tabular-nums; }
+.mock-page { padding:0; }
+.mock-page > .accessible-question { border:1px solid var(--line); border-radius:1rem; background:var(--surface); margin-block:1.5rem; }
+@media (max-width:700px) {
+  .journey-card,.dashboard-actions { grid-template-columns:1fr; }
+  .journey-card { gap:1rem; }
+  .navigation-bar,.reading-bar { padding-inline:1rem; }
+  html .app-main { padding-inline:1rem; }
+  .app-header-actions { max-width:100%; }
+  .mock-summary-grid,.mock-section-bar { grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
+@media (forced-colors:active) {
+  * { box-shadow:none!important; }
+  html :is(a,button,input,select,textarea,summary,[tabindex]):focus-visible { outline:3px solid Highlight; }
+  .navigation-bar a.active, .option-selected { border:3px solid Highlight; }
+}
+
+dialog.mock-dialog { margin: auto; width: min(38rem, calc(100% - 2rem)); max-height: 85dvh; overflow-y: auto; }

@@ -368,14 +368,6 @@ function Prepare() {
         )
       : "";
 
-  const currentSpokenText =
-    currentQuestion
-      ? localize(
-          currentQuestion.spoken,
-          language
-        ) || currentQuestionText
-      : "";
-
   const currentExplanation =
     currentQuestion
       ? localize(
@@ -487,6 +479,9 @@ function Prepare() {
     );
   }
 
+  const readingRef = useRef(null);
+  useEffect(() => { readingRef.current = { currentQuestion, buildQuestionSpeech }; });
+
   /*
     Automatically read each new question only
     in "Udaan speaks" mode.
@@ -497,7 +492,7 @@ function Prepare() {
   useEffect(() => {
     if (
       phase !== "practice" ||
-      !currentQuestion ||
+      !readingRef.current.currentQuestion ||
       voiceMode !== "udaan"
     ) {
       return;
@@ -505,9 +500,7 @@ function Prepare() {
 
     const timeout = window.setTimeout(() => {
       speak(
-        buildQuestionSpeech(
-          currentQuestion
-        ),
+        readingRef.current.buildQuestionSpeech(readingRef.current.currentQuestion),
         language,
         speechRate
       );
@@ -1380,7 +1373,7 @@ function Prepare() {
   */
   if (phase === "select") {
     return (
-      <main className="prepare-page">
+      <section className="prepare-page">
         <h1
           ref={headingRef}
           tabIndex="-1"
@@ -1513,7 +1506,7 @@ function Prepare() {
         >
           {liveMessage}
         </div>
-      </main>
+      </section>
     );
   }
 
@@ -1524,7 +1517,7 @@ function Prepare() {
   */
   if (phase === "result") {
     return (
-      <main className="prepare-page">
+      <section className="prepare-page">
         <h1
           ref={headingRef}
           tabIndex="-1"
@@ -1648,7 +1641,7 @@ function Prepare() {
         >
           {liveMessage}
         </div>
-      </main>
+      </section>
     );
   }
 
@@ -1658,7 +1651,7 @@ function Prepare() {
     ---------------
   */
   return (
-    <main className="prepare-page">
+    <section className="prepare-page">
       <h1
         ref={headingRef}
         tabIndex="-1"
@@ -1986,7 +1979,7 @@ function Prepare() {
       >
         {liveMessage}
       </div>
-    </main>
+    </section>
   );
 }
 

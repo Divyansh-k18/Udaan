@@ -104,7 +104,7 @@ export function normalizeCommandText(value = "") {
     .join("");
 
   return text
-    .replace(/[.,!?;:"'`(){}\[\]]/g, " ")
+    .replace(/[.,!?;:"'`(){}[\]]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }

@@ -4,6 +4,7 @@ import {
   Routes,
 } from "react-router-dom";
 
+import StorageNotice from "./components/StorageNotice";
 import Layout from "./components/Layout";
 
 import Setup from "./pages/Setup";
@@ -20,7 +21,7 @@ import VoiceCheck from "./pages/VoiceCheck";
 
 function App() {
   return (
-    <Routes>
+    <><StorageNotice /><Routes>
       {/* Start Udaan with accessibility setup */}
       <Route
         path="/"
@@ -92,8 +93,9 @@ function App() {
           path="/voice-check"
           element={<VoiceCheck />}
         />
+        <Route path="*" element={<section><h1>Page not found</h1><p>Use the navigation above to return to your learning space.</p></section>} />
       </Route>
-    </Routes>
+    </Routes></>
   );
 }
 
